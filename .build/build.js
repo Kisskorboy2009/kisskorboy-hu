@@ -60,6 +60,16 @@ const quizData = r('quiz-data.js');
 const bundleUrl = writeAsset('skinview3d.js', Buffer.from(r('skinview3d.js'), 'utf8'));
 const quizUrl   = writeAsset('quiz-data.js',  Buffer.from(quizData, 'utf8'));
 
+/* Skill meters are ten discrete blocks, so the bar and the "9/10"
+   beside it say the same thing. Expanded here rather than built by
+   script, so the meters read correctly even if the bundle never runs. */
+html = html.replace(/__SEGS_(\d+)__/g, (_, n) => {
+  const filled = parseInt(n, 10);
+  let out = '';
+  for (let i = 1; i <= 10; i++) out += '<i' + (i <= filled ? ' class="on"' : '') + '></i>';
+  return out;
+});
+
 html = html
   .replace('__DISCORD_SVG__', discord)
   .replace('__AVATAR__', avatarUrl)
@@ -133,18 +143,37 @@ const head = [
    orphaned: index.html was opened away from its assets/ folder (a
    downloaded copy, a file preview that inlines the document). Say so,
    instead of leaving a page with blank bars and broken images. */
+/* Single quotes around the href: this text ends up inside a double
+   quoted JS string in an inline script, so double quotes would close
+   it early. The closing tags stay escaped so they cannot end the
+   <script> element either. */
+const MISSING_EN = 'This copy of index.html is not next to its <code>assets\\/<\\/code> folder, so the styles you see are all it can load. ' +
+  "Open index.html from the project folder, or visit <a href='https:\\/\\/kisskorboy.hu\\/'>kisskorboy.hu<\\/a>.";
+const MISSING_HU = 'Ez az index.html nincs az <code>assets\\/<\\/code> mappája mellett. Nyisd meg a projektmappából, vagy nézd meg a ' +
+  "<a href='https:\\/\\/kisskorboy.hu\\/'>kisskorboy.hu<\\/a> oldalt.";
+const BROKEN_EN = 'The page loaded but its script did not start. A reload usually fixes it.';
+const BROKEN_HU = 'Az oldal betöltött, de a szkriptje nem indult el. Általában elég újratölteni.';
+
+/* Two different failures look the same to a visitor, so tell them
+   apart: if the hero image did not resolve either, the document is
+   simply sitting away from its assets. The bundle's own error event
+   catches that immediately; the timeout is only a backstop, and long
+   enough that a slow connection is never accused of it. */
 const bootGuard =
-  'setTimeout(function(){' +
-  'if(document.body.classList.contains("js-on"))return;' +
+  '(function(){var shown=false;' +
+  'function warn(orphan){if(shown||document.body.classList.contains("js-on"))return;shown=true;' +
   'var d=document.createElement("div");d.className="boot-warn";' +
-  'd.innerHTML="<b>assets\\/ not found<\\/b>" +' +
-  '"<span>This copy of index.html is not next to its <code>assets\\/<\\/code> folder, so the styles you see are all it can load. ' +
-  'Open index.html from the project folder, or visit <a href=\\"https:\\/\\/kisskorboy.hu\\/\\">kisskorboy.hu<\\/a>.<\\/span>" +' +
-  '"<span lang=\\"hu\\">Ez az index.html nincs az <code>assets\\/<\\/code> mappája mellett. Nyisd meg a projektmappából, vagy nézd meg a <a href=\\"https:\\/\\/kisskorboy.hu\\/\\">kisskorboy.hu<\\/a> oldalt.<\\/span>";' +
-  'document.body.appendChild(d);},2500);';
+  'd.innerHTML=orphan' +
+  '?("<b>assets\\/ not found<\\/b><span>' + MISSING_EN + '<\\/span><span lang=\\"hu\\">' + MISSING_HU + '<\\/span>")' +
+  ':("<b>page did not finish loading<\\/b><span>' + BROKEN_EN + '<\\/span><span lang=\\"hu\\">' + BROKEN_HU + '<\\/span>");' +
+  'document.body.appendChild(d);}' +
+  'function orphaned(){var i=document.images[0];return !!i&&i.complete&&i.naturalWidth===0;}' +
+  'var s=document.getElementById("app-bundle");' +
+  'if(s)s.addEventListener("error",function(){warn(true);});' +
+  'setTimeout(function(){warn(orphaned());},6000);})();';
 
 const out = head + '\n' + html +
-  '\n<script src="' + appUrl + '" defer><\/script>' +
+  '\n<script id="app-bundle" src="' + appUrl + '" defer><\/script>' +
   '\n<script>' + bootGuard + '<\/script>\n</body>\n</html>\n';
 
 fs.writeFileSync('index.html', out);

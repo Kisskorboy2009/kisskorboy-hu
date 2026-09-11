@@ -108,11 +108,12 @@ var I18N = {
     'quiz.readyp':'Fifteen questions stand between you and the top of the tree. Minecraft, code and general knowledge — mixed, shuffled and timed.',
     'quiz.start':'Start climbing','quiz.retry':'Climb again',
     'quiz.kbd':'Tip: keys 1–4 pick an answer',
+    'quiz.pool':'{n} questions in the pool',
     'quiz.ll.fifty':'Halve it','quiz.ll.skip':'Swap question','quiz.ll.shield':'Shield',
     'quiz.tier.easy':'EASY','quiz.tier.medium':'MEDIUM','quiz.tier.hard':'HARD',
     'quiz.cat.mc':'MINECRAFT','quiz.cat.dev':'CODE & WEB','quiz.cat.gen':'GENERAL',
     'quiz.over.title':'Down you go…',
-    'quiz.over.desc':'You fell from level {n} of {max}.',
+    'quiz.over.desc':'You made it to level {n} of {max}.',
     'quiz.over.desc0':'You fell on the very first branch. Everyone starts somewhere.',
     'quiz.timeup.title':'Out of time!',
     'quiz.timeup.desc':'The clock ran out on level {n}.',
@@ -172,11 +173,12 @@ var I18N = {
     'quiz.readyp':'Tizenöt kérdés választ el a fa tetejétől. Minecraft, kód és általános műveltség — keverve, véletlen sorrendben, órával.',
     'quiz.start':'Mászás indítása','quiz.retry':'Új próbálkozás',
     'quiz.kbd':'Tipp: az 1–4 billentyűkkel is válaszolhatsz',
+    'quiz.pool':'{n} kérdés a készletben',
     'quiz.ll.fifty':'Felezés','quiz.ll.skip':'Kérdéscsere','quiz.ll.shield':'Pajzs',
     'quiz.tier.easy':'KÖNNYŰ','quiz.tier.medium':'KÖZEPES','quiz.tier.hard':'NEHÉZ',
     'quiz.cat.mc':'MINECRAFT','quiz.cat.dev':'KÓD & WEB','quiz.cat.gen':'ÁLTALÁNOS',
     'quiz.over.title':'Lezuhantál…',
-    'quiz.over.desc':'A(z) {n}. szintről estél le, a(z) {max}-ből.',
+    'quiz.over.desc':'A(z) {n}. szintig jutottál a(z) {max}-ből.',
     'quiz.over.desc0':'Mindjárt az első ágon leestél. Valahol mindenki elkezdi.',
     'quiz.timeup.title':'Lejárt az idő!',
     'quiz.timeup.desc':'Az óra a(z) {n}. szinten futott ki.',
@@ -636,34 +638,57 @@ var updateHoverTilt = null;
 /* ============================================================
    9. Skill bars + stat counters
    ============================================================ */
+/* The meters used to fill on the load event, which on a desktop happens
+   while the visitor is still looking at the hero — by the time they
+   scrolled down the animation was long over. They run on arrival now,
+   and the score beside each meter counts in step with its blocks
+   instead of on a separate timer that drifted out of sync. */
+var ROW_MS = 90;    // must match the transition-delay in the stylesheet
+var SEG_MS = 42;
+
+(function(){
+  var card = document.querySelector('.skill-card');
+  if (!card) return;
+
+  var tracks = [].slice.call(card.querySelectorAll('.bar-track'));
+  var scores = [].slice.call(card.querySelectorAll('[data-score]'));
+  tracks.forEach(function(tr, row){ tr.style.setProperty('--row', row); });
+
+  if (reduced) return;    // the build already wrote the meters filled
+
+  card.classList.add('js-bars');
+  scores.forEach(function(el){ el.textContent = '0/10'; });
+
+  var played = false;
+  function play(){
+    if (played) return;
+    played = true;
+    card.classList.add('bars-in');
+    scores.forEach(function(el, row){
+      var target = parseInt(el.getAttribute('data-score'), 10) || 0;
+      for (var k = 1; k <= target; k++){
+        (function(n){
+          setTimeout(function(){ el.textContent = n + '/10'; },
+                     row * ROW_MS + (n - 1) * SEG_MS);
+        })(k);
+      }
+    });
+  }
+
+  if (!('IntersectionObserver' in window)){ play(); return; }
+  var io = new IntersectionObserver(function(entries){
+    if (entries[0].isIntersecting){ io.disconnect(); play(); }
+  }, { rootMargin: '0px 0px -12% 0px' });
+  io.observe(card);
+})();
+
+/* Hero counters. These sit above the fold, so the load event is the
+   right moment for them. */
 (function(){
   var fired = false;
   function run(){
     if (fired) return;
     fired = true;
-    var bars = document.querySelectorAll('.bar-fill');
-    for (var i = 0; i < bars.length; i++){
-      (function(bar, idx){
-        setTimeout(function(){ bar.style.width = bar.getAttribute('data-pct') + '%'; }, 120 * idx);
-      })(bars[i], i);
-    }
-    // the x/10 score ticks up alongside its bar
-    var scores = document.querySelectorAll('[data-score]');
-    for (var s = 0; s < scores.length; s++){
-      (function(el, idx){
-        var target = parseInt(el.getAttribute('data-score'), 10);
-        if (reduced){ el.textContent = target + '/10'; return; }
-        el.textContent = '0/10';
-        setTimeout(function(){
-          var n = 0;
-          var timer = setInterval(function(){
-            n++;
-            el.textContent = n + '/10';
-            if (n >= target) clearInterval(timer);
-          }, 1100 / target);
-        }, 120 * idx);
-      })(scores[s], s);
-    }
     var stats = document.querySelectorAll('[data-count]');
     for (var j = 0; j < stats.length; j++){
       (function(el){
@@ -671,11 +696,12 @@ var updateHoverTilt = null;
         var suffix = el.getAttribute('data-suffix') || '';
         if (reduced){ el.textContent = target + suffix; return; }
         var n = 0;
+        var step = 780 / Math.max(target, 1);
         var timer = setInterval(function(){
           n++;
           el.textContent = n + (n >= target ? suffix : '');
           if (n >= target) clearInterval(timer);
-        }, 260 / Math.max(target, 1) * 3);
+        }, step);
       })(stats[j]);
     }
   }
@@ -759,7 +785,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   /* The bank is a separate file so its weight never lands on first
      paint. It is prefetched as the section approaches, so pressing
      Start is instant in practice. */
-  var QUIZ_URL = 'assets/quiz-data.1b28a5ee.js';
+  var QUIZ_URL = 'assets/quiz-data.1c560320.js';
   var bankState = 0;   // 0 idle, 1 loading, 2 ready, 3 failed
   var bankWaiting = [];
 
@@ -774,6 +800,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     s.async = true;
     s.onload = function(){
       bankState = window.QUIZ_BANK ? 2 : 3;
+      if (bankState === 2) paintPool();
       var q = bankWaiting; bankWaiting = [];
       q.forEach(function(fn){ fn(bankState === 2); });
     };
@@ -1112,8 +1139,9 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
       if (lastEnd.level === 0 && k !== 'timeup'){
         overDesc.textContent = t('quiz.over.desc0');
       } else {
-        overDesc.textContent = fill(t(k === 'timeup' ? 'quiz.timeup.desc' : 'quiz.over.desc'),
-                                    { n: lastEnd.level + 1, max: MAX_LEVEL });
+        overDesc.textContent = k === 'timeup'
+          ? fill(t('quiz.timeup.desc'), { n: lastEnd.level + 1, max: MAX_LEVEL })
+          : fill(t('quiz.over.desc'), { n: lastEnd.level, max: MAX_LEVEL });
       }
       if (lastEnd.entry){
         var right = (lang === 'hu' ? lastEnd.entry[3] : lastEnd.entry[2])[0];
@@ -1194,8 +1222,18 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     }
   });
 
+  var poolEl = document.getElementById('quizPool');
+  function paintPool(){
+    if (!poolEl || !window.QUIZ_BANK) return;
+    var n = 0;
+    for (var k in window.QUIZ_BANK) if (window.QUIZ_BANK.hasOwnProperty(k)) n += window.QUIZ_BANK[k].length;
+    poolEl.textContent = fill(t('quiz.pool'), { n: n });
+    poolEl.hidden = false;
+  }
+
   quizRelang = function(){
     paintHud();
+    paintPool();
     if (!errorBox.hidden) showError(t('quiz.offline'));
     if (playing && current && !locked) renderQuestion();
     if (!over.hidden) paintEnd();
