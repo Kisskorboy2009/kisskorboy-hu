@@ -789,9 +789,11 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   var bankState = 0;   // 0 idle, 1 loading, 2 ready, 3 failed
   var bankWaiting = [];
 
+  // cb is optional: the prefetch that runs when the section approaches
+  // passes none, and by then the bank may already be loaded
   function withBank(cb){
-    if (bankState === 2) return cb(true);
-    if (bankState === 3) return cb(false);
+    if (bankState === 2){ if (cb) cb(true); return; }
+    if (bankState === 3){ if (cb) cb(false); return; }
     if (cb) bankWaiting.push(cb);
     if (bankState === 1) return;
     bankState = 1;
@@ -827,10 +829,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     { key: 'hard',   top: 15, secs: 14 }
   ];
 
-  var wrap      = document.querySelector('.quiz-wrap');
   var rungsWrap = document.getElementById('treeRungs');
-  var climber   = document.getElementById('treeClimber');
-  var sap       = document.getElementById('treeSap');
   var elLevel   = document.getElementById('qLevel');
   var elBest    = document.getElementById('qBest');
   var elStreak  = document.getElementById('qStreak');
@@ -897,21 +896,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
       rungEls[i].classList.toggle('done', i < level);
       rungEls[i].classList.toggle('now', playing && i === level);
     }
-    var h = tree.clientHeight;
-    if (!h) return;
-    // the climber sits on the branch currently being attempted
-    var at = rungEls[Math.min(level, MAX_LEVEL - 1)];
-    var centre = at.offsetTop + at.offsetHeight / 2;
-    climber.style.bottom = (h - centre - climber.offsetHeight / 2) + 'px';
-    if (level === 0){
-      sap.style.height = '0%';
-    } else {
-      var done = rungEls[level - 1];
-      var dc = done.offsetTop + done.offsetHeight / 2;
-      sap.style.height = ((h - dc) / h * 100).toFixed(2) + '%';
-    }
   }
-  window.addEventListener('resize', paintTree);
 
   var streakStat = document.getElementById('qStreakStat');
   function paintHud(){
@@ -1102,7 +1087,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     intro.hidden = true;
     over.hidden = true;
     game.hidden = false;
-    wrap.classList.add('playing');
     nextQuestion();
   }
 
@@ -1241,8 +1225,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
 
   paintHud();
   paintTree();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintTree);
-  window.addEventListener('load', paintTree);
 })();
 
 /* ============================================================

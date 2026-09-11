@@ -973,30 +973,17 @@ footer{
   transform-style:preserve-3d;
 }
 
-/* --- the tree itself --- */
+/* --- the climb meter ---
+
+   One element doing one job. It used to be three overlapping things —
+   a filling trunk, the numbered rungs, and a marker that span on the
+   spot forever — so part of it was always moving while the rest sat
+   still. Now it is a stack of blocks in the same language as the skill
+   meters, and the only motion is the climb itself. */
 .quiz-tree{
   position:relative;
   min-height:520px;
   transform:translateZ(10px);
-}
-.tree-trunk{
-  position:absolute;
-  left:13px;
-  top:6px;bottom:6px;
-  width:6px;
-  border-radius:3px;
-  background:var(--track);
-  box-shadow:inset 0 0 0 1px var(--panel-border);
-  overflow:hidden;
-}
-.tree-sap{
-  position:absolute;
-  left:0;right:0;bottom:0;
-  height:0%;
-  display:block;
-  background:linear-gradient(0deg,var(--accent-soft),var(--accent));
-  box-shadow:0 0 18px rgba(var(--accent-rgb),.9);
-  transition:height .55s cubic-bezier(.3,1.2,.4,1);
 }
 .tree-rungs{
   position:absolute;
@@ -1004,64 +991,53 @@ footer{
   margin:0;padding:0;
   list-style:none;
   display:flex;
-  flex-direction:column-reverse;
-  justify-content:space-between;
+  flex-direction:column-reverse;   /* level 1 at the bottom */
+  gap:4px;
 }
 .tree-rung{
+  flex:1 1 0;
   display:flex;
   align-items:center;
   gap:9px;
-  height:16px;
-  position:relative;
+  min-height:0;
 }
 .tree-rung .node{
-  width:16px;height:16px;
-  flex:none;
-  margin-left:8px;
-  border:1px solid var(--panel-border);
-  background:var(--bg-soft);
-  box-shadow:inset 0 1px 0 var(--edge-top);
-  transition:background .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
+  flex:1 1 auto;
+  align-self:center;
+  height:17px;
+  border-radius:2px;
+  background:var(--track);
+  box-shadow:inset 0 0 0 1px rgba(var(--text-rgb),.05);
+  transition:background .4s ease, box-shadow .4s ease, transform .4s cubic-bezier(.2,.9,.3,1);
 }
 .tree-rung .num{
+  width:15px;
+  flex:none;
+  text-align:right;
   font-family:var(--font-display);
-  font-size:13px;
+  font-size:12px;
   line-height:1;
-  letter-spacing:.06em;
+  letter-spacing:.04em;
   color:var(--text-dim);
-  opacity:.55;
-  transition:color .35s ease, opacity .35s ease;
+  opacity:.45;
+  transition:color .4s ease, opacity .4s ease;
 }
-/* tier boundaries get a wider, brighter node */
-.tree-rung.tier-mark .node{width:20px;margin-left:6px;border-color:rgba(var(--accent-rgb),.4);}
+/* the tier boundaries stay readable so the three sections are visible */
+.tree-rung.tier-mark .num{opacity:.8;}
+
 .tree-rung.done .node{
-  background:var(--accent);
-  border-color:var(--accent);
-  box-shadow:0 0 16px -2px rgba(var(--accent-rgb),.95);
+  background:linear-gradient(90deg, rgba(255,255,255,.22), transparent 60%), var(--accent);
+  box-shadow:0 0 12px -3px rgba(var(--accent-rgb),.9), inset 0 0 0 1px rgba(var(--accent-rgb),.9);
 }
-.tree-rung.done .num{color:var(--text);opacity:.9;}
+.tree-rung.done .num{color:var(--text);opacity:.85;}
+
+/* the branch being attempted: outlined, not filled */
 .tree-rung.now .node{
-  transform:scale(1.35) rotate(45deg);
-  background:var(--accent);
-  border-color:var(--accent);
-  box-shadow:0 0 22px 0 rgba(var(--accent-rgb),1);
+  background:rgba(var(--accent-rgb),.12);
+  box-shadow:inset 0 0 0 1px var(--accent), 0 0 16px -4px rgba(var(--accent-rgb),.9);
+  transform:scaleX(1.04);
 }
 .tree-rung.now .num{color:var(--accent);opacity:1;}
-.tree-climber{
-  position:absolute;
-  left:9px;
-  bottom:0;
-  width:24px;height:24px;
-  margin-bottom:-4px;
-  border:1px solid rgba(var(--accent-rgb),.9);
-  background:rgba(var(--accent-rgb),.16);
-  box-shadow:0 0 26px -4px rgba(var(--accent-rgb),1), inset 0 0 14px -5px rgba(var(--accent-rgb),1);
-  opacity:0;
-  transition:bottom .55s cubic-bezier(.3,1.2,.4,1), opacity .3s ease;
-  animation:climber-spin 5s linear infinite;
-}
-.quiz-wrap.playing .tree-climber{opacity:1;}
-@keyframes climber-spin{ from{rotate:0deg;} to{rotate:360deg;} }
 
 /* --- panel --- */
 .quiz-panel{min-width:0;transform-style:preserve-3d;}
@@ -1540,12 +1516,10 @@ footer{
   .contact-card{padding:44px 22px;}
   .scene{perspective:1100px;}
   .quiz-wrap{grid-template-columns:54px 1fr;gap:16px;}
-  .quiz-tree{min-height:440px;}
-  .tree-trunk{left:9px;}
-  .tree-rung .node{margin-left:4px;width:14px;height:14px;}
-  .tree-rung.tier-mark .node{width:18px;margin-left:2px;}
-  .tree-rung .num{font-size:11px;}
-  .tree-climber{left:5px;width:22px;height:22px;}
+  .quiz-tree{min-height:430px;}
+  .tree-rung{gap:6px;}
+  .tree-rung .node{height:14px;}
+  .tree-rung .num{font-size:10px;width:13px;}
   .quiz-card{padding:22px 18px;}
   .quiz-answers{grid-template-columns:1fr;}
   .q-text{min-height:0;}
@@ -1892,9 +1866,7 @@ body.perf-low .quiz-answer{transition-duration:.2s;}
 
     <div class="quiz-wrap">
       <div class="quiz-tree" aria-hidden="true">
-        <div class="tree-trunk"><i class="tree-sap" id="treeSap"></i></div>
         <ol class="tree-rungs" id="treeRungs"></ol>
-        <span class="tree-climber" id="treeClimber"></span>
       </div>
 
       <div class="quiz-panel">
@@ -1980,7 +1952,7 @@ body.perf-low .quiz-answer{transition-duration:.2s;}
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5.8 5.4 12.4 6.8 13.8 11 9.6V19h2V9.6l4.2 4.2 1.4-1.4L12 5.8Z"/></svg>
 </button>
 
-<script id="app-bundle" src="assets/app.7764acea.js" defer></script>
+<script id="app-bundle" src="assets/app.169d71eb.js" defer></script>
 <script>(function(){var shown=false;function warn(orphan){if(shown||document.body.classList.contains("js-on"))return;shown=true;var d=document.createElement("div");d.className="boot-warn";d.innerHTML=orphan?("<b>assets\/ not found<\/b><span>This copy of index.html is not next to its <code>assets\/<\/code> folder, so the styles you see are all it can load. Open index.html from the project folder, or visit <a href='https:\/\/kisskorboy.hu\/'>kisskorboy.hu<\/a>.<\/span><span lang=\"hu\">Ez az index.html nincs az <code>assets\/<\/code> mappája mellett. Nyisd meg a projektmappából, vagy nézd meg a <a href='https:\/\/kisskorboy.hu\/'>kisskorboy.hu<\/a> oldalt.<\/span>"):("<b>page did not finish loading<\/b><span>The page loaded but its script did not start. A reload usually fixes it.<\/span><span lang=\"hu\">Az oldal betöltött, de a szkriptje nem indult el. Általában elég újratölteni.<\/span>");document.body.appendChild(d);}function orphaned(){var i=document.images[0];return !!i&&i.complete&&i.naturalWidth===0;}var s=document.getElementById("app-bundle");if(s)s.addEventListener("error",function(){warn(true);});setTimeout(function(){warn(orphaned());},6000);})();</script>
 </body>
 </html>
