@@ -17,7 +17,8 @@
 <meta name="twitter:title" content="Kisskorboy | Minecraft &amp; Website Developer">
 <meta name="twitter:description" content="Minecraft server development, plugin work, server administration and websites.">
 <meta name="twitter:image" content="https://kisskorboy.hu/og.jpg">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2212%22%20fill%3D%22%230f1114%22%2F%3E%3Cpath%20d%3D%22M20%2014h7v16.5L41%2014h8.5L34.8%2031.4%2050%2050h-9L27%2032.8V50h-7z%22%20fill%3D%22%23c81e2e%22%2F%3E%3C%2Fsvg%3E">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.5b3233e4.png">
+<link rel="apple-touch-icon" href="assets/favicon.5b3233e4.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Kisskorboy","url":"https://kisskorboy.hu/","jobTitle":"Minecraft server developer & website developer","knowsAbout":["Minecraft plugin development","Minecraft server administration","Web development","Backend systems","Community moderation"],"knowsLanguage":["hu","en"],"sameAs":["https://discord.com/users/kisskorboy","https://overclockgame.hu","https://dc.imperius.hu"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1456,8 +1457,15 @@ footer{
   justify-content:center;
   perspective:900px;
   transition:opacity .7s ease, visibility .7s ease;
+  /* The curtain lifts itself. It used to wait for a script to add
+     .done, which meant any failure to load the bundle left the whole
+     site stuck behind a black screen forever. CSS gets it out of the
+     way no matter what happens to the JavaScript; the script can
+     still dismiss it earlier on the first interaction. */
+  animation:intro-lift .6s ease .7s forwards;
 }
 .intro.done{opacity:0;visibility:hidden;pointer-events:none;}
+@keyframes intro-lift{ to{opacity:0;visibility:hidden;} }
 .intro-cube{
   width:70px;height:70px;
   position:relative;
@@ -1588,6 +1596,9 @@ body.perf-low .bar-fill::after{animation:none;}
   body.js-on [data-stagger] > *{opacity:1 !important;}
   html{scroll-behavior:auto;}
   .grain{display:none;}
+  /* the blanket rule above shortens the animation but not its delay,
+     which would leave the curtain sitting there for a second */
+  .intro{animation-delay:0s !important;}
 }
 
 </style>
