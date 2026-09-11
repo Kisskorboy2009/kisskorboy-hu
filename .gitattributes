@@ -1,0 +1,9 @@
+# The build hashes every asset byte-for-byte, so line-ending translation
+# would hand a different filename to every platform that checks out this
+# repo. Keep LF everywhere and leave binaries alone.
+* text=auto eol=lf
+
+*.webp binary
+*.png  binary
+*.jpg  binary
+*.ico  binary

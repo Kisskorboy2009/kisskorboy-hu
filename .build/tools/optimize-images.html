@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Re-encode artwork</title>
+<style>
+  body{font:14px/1.5 system-ui, sans-serif;background:#111;color:#eee;padding:24px;}
+  table{border-collapse:collapse;margin-top:12px;}
+  td,th{padding:5px 12px;border-bottom:1px solid #333;text-align:left;}
+  .ok{color:#5cd08a;} .bad{color:#ff6b6b;}
+</style>
+</head>
+<body>
+<h1>Re-encode artwork</h1>
+<p>Draws each source image into a canvas at the size the page actually
+renders it (2x for retina) and writes the result back to
+<code>.build/parts/</code> as a WebP data URI. Run it from the dev
+server, then re-run <code>node .build/build.js</code>.</p>
+<table id="out"><tr><th>part</th><th>before</th><th>after</th><th>saved</th></tr></table>
+
+<script>
+/* [ source part file, part file to write, target box, fit, type, quality ]
+   Sources are the part files themselves, so a job can be re-run against
+   an already optimised part (the favicon is cut from the avatar). */
+const JOBS = [
+  ['avatar.txt',          'avatar.txt',          440, 'cover',   'image/webp', 0.82],
+  ['thumb_overclock.txt', 'thumb_overclock.txt', 128, 'contain', 'image/webp', 0.86],
+  ['thumb_imperius.txt',  'thumb_imperius.txt',  128, 'contain', 'image/webp', 0.86],
+  ['thumb_fyre.txt',      'thumb_fyre.txt',      128, 'contain', 'image/webp', 0.86],
+  ['thumb_neptunity.txt', 'thumb_neptunity.txt', 128, 'contain', 'image/webp', 0.86],
+  // PNG, because a browser tab icon is the one place worth being
+  // conservative about format support
+  ['avatar.txt',          'favicon.txt',          64, 'cover',   'image/png',  1]
+];
+
+const PARTS = '/.build/parts/';
+
+const load = src => new Promise((res, rej) => {
+  const i = new Image();
+  i.onload = () => res(i);
+  i.onerror = rej;
+  i.src = src;
+});
+
+function row(cells, cls){
+  const tr = document.createElement('tr');
+  cells.forEach(c => { const td = document.createElement('td'); td.textContent = c; if (cls) td.className = cls; tr.appendChild(td); });
+  document.getElementById('out').appendChild(tr);
+}
+
+/* Re-encoding an already-encoded part loses a little quality every run,
+   so ?only=a.txt,b.txt limits the pass to the parts you actually want. */
+const only = new URLSearchParams(location.search).get('only');
+const todo = only ? JOBS.filter(j => only.split(',').includes(j[1])) : JOBS;
+
+(async () => {
+  for (const [srcPart, part, box, fit, type, q] of todo){
+    try {
+      const src = await (await fetch(PARTS + srcPart)).text();
+      const before = src.length * 0.75;
+      const img = await load(src);
+      let w, h;
+      if (fit === 'cover'){
+        w = h = box;
+      } else {
+        const s = Math.min(box / img.naturalWidth, box / img.naturalHeight, 1);
+        w = Math.round(img.naturalWidth * s);
+        h = Math.round(img.naturalHeight * s);
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      if (fit === 'cover'){
+        const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+        const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+        ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      } else {
+        ctx.drawImage(img, 0, 0, w, h);
+      }
+      const dataUri = c.toDataURL(type, q);
+      if (!dataUri.startsWith('data:' + type)) throw new Error('no encoder for ' + type);
+      const after = Math.round(dataUri.length * 0.75);
+      await fetch('/__save', {
+        method: 'POST',
+        body: JSON.stringify({ name: part, dataUri })
+      });
+      const kb = n => (n / 1024).toFixed(1) + ' kB';
+      row([part + '  (' + w + 'x' + h + ')', kb(before), kb(after),
+           Math.round((1 - after / before) * 100) + '%'], 'ok');
+    } catch (e) {
+      row([part, '—', 'FAILED: ' + e.message, ''], 'bad');
+    }
+  }
+  row(['done', '', '', '']);
+})();
+</script>
+</body>
+</html>
