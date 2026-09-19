@@ -93,6 +93,11 @@ var I18N = {
     'do.4.h':'Community Moderation','do.4.p':'Reports, appeals, and enforcing the rules — keeping communities safe and fair.',
     'do.5.h':'Web Development','do.5.p':'Server sites, landing pages and dashboards — built clean, fast and responsive.',
     'do.6.h':'Backend Systems','do.6.p':'APIs, databases and the backend glue that keeps plugins and panels in sync.',
+    'label.partners':'PARTNERS',
+    'partners.h2':'People I work with.',
+    'partners.p':'The creators and communities the servers and sites are built alongside.',
+    'partners.imperius.role':'Content creator & community',
+    'partners.kounee.role':'Overclock — server team',
     'label.stack':'TECH STACK',
     'stack.h2':'Tools I build with.',
     'stack.note':'Drag to spin',
@@ -105,13 +110,14 @@ var I18N = {
     'quiz.p':'Answer right and climb one branch higher. Answer wrong and you fall all the way down. Fifteen levels, three difficulty tiers, three lifelines — how high do you get?',
     'quiz.level':'Level','quiz.best':'Best','quiz.streak':'Streak','quiz.tier':'Tier',
     'quiz.ready':'Ready to climb?',
-    'quiz.readyp':'Fifteen questions stand between you and the top of the tree. Minecraft, code and general knowledge — mixed, shuffled and timed.',
+    'quiz.readyp':'Fifteen questions stand between you and the top of the tree. Code, science, history, general knowledge and Minecraft — shuffled and timed, and never the same climb twice.',
     'quiz.start':'Start climbing','quiz.retry':'Climb again',
     'quiz.kbd':'Tip: keys 1–4 pick an answer',
     'quiz.pool':'{n} questions in the pool',
     'quiz.ll.fifty':'Halve it','quiz.ll.skip':'Swap question','quiz.ll.shield':'Shield',
     'quiz.tier.easy':'EASY','quiz.tier.medium':'MEDIUM','quiz.tier.hard':'HARD',
     'quiz.cat.mc':'MINECRAFT','quiz.cat.dev':'CODE & WEB','quiz.cat.gen':'GENERAL',
+    'quiz.cat.sci':'SCIENCE','quiz.cat.his':'HISTORY',
     'quiz.over.title':'Down you go…',
     'quiz.over.desc':'You made it to level {n} of {max}.',
     'quiz.over.desc0':'You fell on the very first branch. Everyone starts somewhere.',
@@ -127,7 +133,7 @@ var I18N = {
     'quiz.sharetext':'Tree of Knowledge — level {n}/{max} ({tier}) · kisskorboy.hu',
     'quiz.sharewin':'Tree of Knowledge — cleared all {max} levels! · kisskorboy.hu',
     'quiz.hot':'On fire!',
-    'dot.top':'TOP','dot.skills':'SKILLS','dot.projects':'PROJECTS','dot.what-i-do':'WHAT I DO','dot.stack':'STACK','dot.quiz':'MINIGAME','dot.contact':'CONTACT'
+    'dot.top':'TOP','dot.skills':'SKILLS','dot.projects':'PROJECTS','dot.what-i-do':'WHAT I DO','dot.partners':'PARTNERS','dot.stack':'STACK','dot.quiz':'MINIGAME','dot.contact':'CONTACT'
   },
   hu: {
     'meta.title':'Kisskorboy | Minecraft & Weboldal Fejlesztő',
@@ -158,6 +164,11 @@ var I18N = {
     'do.4.h':'Közösségi Moderáció','do.4.p':'Bejelentések, fellebbezések és a szabályok betartatása — biztonságos, fair közösség.',
     'do.5.h':'Webfejlesztés','do.5.p':'Szerver oldalak, landing page-ek és vezérlőpultok — tisztán, gyorsan, reszponzívan.',
     'do.6.h':'Backend Rendszerek','do.6.p':'API-k, adatbázisok és a backend, ami szinkronban tartja a pluginokat és paneleket.',
+    'label.partners':'PARTNEREK',
+    'partners.h2':'Akikkel együtt dolgozom.',
+    'partners.p':'Az alkotók és közösségek, akikkel közösen épülnek a szerverek és az oldalak.',
+    'partners.imperius.role':'Tartalomgyártó és közösség',
+    'partners.kounee.role':'Overclock — szervercsapat',
     'label.stack':'TECHNOLÓGIÁK',
     'stack.h2':'Amivel dolgozom.',
     'stack.note':'Húzd a forgatáshoz',
@@ -170,13 +181,14 @@ var I18N = {
     'quiz.p':'Válaszolj helyesen, és egy ággal feljebb mászol. Ha rontasz, egészen az aljáig zuhansz. Tizenöt szint, három nehézségi fokozat, három segítség — meddig jutsz?',
     'quiz.level':'Szint','quiz.best':'Legjobb','quiz.streak':'Sorozat','quiz.tier':'Szakasz',
     'quiz.ready':'Kezdhetjük a mászást?',
-    'quiz.readyp':'Tizenöt kérdés választ el a fa tetejétől. Minecraft, kód és általános műveltség — keverve, véletlen sorrendben, órával.',
+    'quiz.readyp':'Tizenöt kérdés választ el a fa tetejétől. Kód, tudomány, történelem, általános műveltség és Minecraft — véletlen sorrendben, órával, és sosem ugyanaz a mászás.',
     'quiz.start':'Mászás indítása','quiz.retry':'Új próbálkozás',
     'quiz.kbd':'Tipp: az 1–4 billentyűkkel is válaszolhatsz',
     'quiz.pool':'{n} kérdés a készletben',
     'quiz.ll.fifty':'Felezés','quiz.ll.skip':'Kérdéscsere','quiz.ll.shield':'Pajzs',
     'quiz.tier.easy':'KÖNNYŰ','quiz.tier.medium':'KÖZEPES','quiz.tier.hard':'NEHÉZ',
     'quiz.cat.mc':'MINECRAFT','quiz.cat.dev':'KÓD & WEB','quiz.cat.gen':'ÁLTALÁNOS',
+    'quiz.cat.sci':'TUDOMÁNY','quiz.cat.his':'TÖRTÉNELEM',
     'quiz.over.title':'Lezuhantál…',
     'quiz.over.desc':'A(z) {n}. szintig jutottál a(z) {max}-ből.',
     'quiz.over.desc0':'Mindjárt az első ágon leestél. Valahol mindenki elkezdi.',
@@ -192,7 +204,7 @@ var I18N = {
     'quiz.sharetext':'Tudás fája — {n}/{max}. szint ({tier}) · kisskorboy.hu',
     'quiz.sharewin':'Tudás fája — mind a(z) {max} szint megvan! · kisskorboy.hu',
     'quiz.hot':'Ez az!',
-    'dot.top':'ELEJE','dot.skills':'KÉPESSÉGEK','dot.projects':'PROJEKTEK','dot.what-i-do':'MIT CSINÁLOK','dot.stack':'ESZKÖZÖK','dot.quiz':'MINIJÁTÉK','dot.contact':'KAPCSOLAT'
+    'dot.top':'ELEJE','dot.skills':'KÉPESSÉGEK','dot.projects':'PROJEKTEK','dot.what-i-do':'MIT CSINÁLOK','dot.partners':'PARTNEREK','dot.stack':'ESZKÖZÖK','dot.quiz':'MINIJÁTÉK','dot.contact':'KAPCSOLAT'
   }
 };
 
@@ -785,7 +797,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   /* The bank is a separate file so its weight never lands on first
      paint. It is prefetched as the section approaches, so pressing
      Start is instant in practice. */
-  var QUIZ_URL = 'assets/quiz-data.1c560320.js';
+  var QUIZ_URL = 'assets/quiz-data.87e964ee.js';
   var bankState = 0;   // 0 idle, 1 loading, 2 ready, 3 failed
   var bankWaiting = [];
 
@@ -855,7 +867,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   var best = 0;
   var playing = false;
   var locked = false;     // true between answering and the next question
-  var queues = {};        // per-tier shuffled question pools
   var current = null;     // { entry, opts, correct }
   var used = { fifty: false, skip: false, shield: false };
   var shieldArmed = false;
@@ -948,12 +959,54 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     flashTimer = setTimeout(function(){ elFlash.classList.remove('on'); }, 1400);
   }
 
-  /* ---- questions ---- */
+  /* ---- questions ----
+
+     Each tier is dealt from a shuffled deck that survives between runs
+     and across visits. A question only comes back once its whole tier
+     has been dealt, so a second attempt is a genuinely different set
+     rather than a fresh shuffle that happily repeats what you just
+     answered. */
+  var DECK_KEY = 'kk-quiz-deck';
+  var decks = null;
+  var usedThisRun = {};
+
+  function loadDecks(){
+    try {
+      var raw = JSON.parse(localStorage.getItem(DECK_KEY));
+      if (raw && raw.sizes) return raw;
+    } catch (e) {}
+    return { sizes: {} };
+  }
+  function saveDecks(){
+    try { localStorage.setItem(DECK_KEY, JSON.stringify(decks)); } catch (e) {}
+  }
+
   function draw(tierKey){
-    if (!queues[tierKey] || !queues[tierKey].length){
-      queues[tierKey] = shuffle(window.QUIZ_BANK[tierKey].slice());
+    var pool = window.QUIZ_BANK[tierKey];
+    if (!decks) decks = loadDecks();
+
+    // a stored deck holds indices, so it is only meaningful while the
+    // tier is the same size it was when the deck was dealt
+    if (decks.sizes[tierKey] !== pool.length){
+      decks.sizes[tierKey] = pool.length;
+      decks[tierKey] = [];
     }
-    return queues[tierKey].pop();
+
+    var idx, guard = 0;
+    do {
+      if (!decks[tierKey] || !decks[tierKey].length){
+        var all = [];
+        for (var i = 0; i < pool.length; i++) all.push(i);
+        decks[tierKey] = shuffle(all);
+      }
+      idx = decks[tierKey].pop();
+      // only reachable if a deck runs out mid-run; never hand the same
+      // question out twice inside one climb
+    } while (usedThisRun[tierKey + ':' + idx] && ++guard < 40);
+
+    usedThisRun[tierKey + ':' + idx] = true;
+    saveDecks();
+    return pool[idx];
   }
 
   function renderQuestion(){
@@ -1076,7 +1129,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     playing = true;
     shieldArmed = false;
     used = { fifty: false, skip: false, shield: false };
-    queues = {};
+    usedThisRun = {};
     lastEnd = null;
     var lls = lifelines.querySelectorAll('.lifeline');
     for (var i = 0; i < lls.length; i++){

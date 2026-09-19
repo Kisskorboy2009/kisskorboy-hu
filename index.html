@@ -68,7 +68,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-#top,#skills,#projects,#what-i-do,#stack,#quiz,#contact{scroll-margin-top:110px;}
+#top,#skills,#projects,#what-i-do,#partners,#stack,#quiz,#contact{scroll-margin-top:110px;}
 body{
   background:var(--bg);
   color:var(--text);
@@ -822,6 +822,51 @@ body.js-on [data-stagger] > *:nth-child(6){transition-delay:.45s;}
 .do-card .ico svg{width:19px;height:19px;}
 .do-card h3{font-size:15.5px;font-weight:600;margin-bottom:8px;transform:translateZ(16px);}
 .do-card p{font-size:13.5px;color:var(--text-dim);line-height:1.55;transform:translateZ(8px);}
+
+/* ---------- Partners ---------- */
+.partner-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(258px, 1fr));
+  gap:18px;
+  transform-style:preserve-3d;
+}
+.partner-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:20px;
+  text-decoration:none;
+  color:inherit;
+}
+.partner-card:hover{transform:translateZ(34px) translateY(-3px);}
+.partner-logo{
+  width:56px;height:56px;
+  flex:none;
+  border-radius:14px;
+  overflow:hidden;
+  background:var(--bg-soft);
+  border:1px solid var(--panel-border);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .45s cubic-bezier(.16,1,.3,1), border-color .3s ease;
+}
+.partner-card:hover .partner-logo{
+  transform:translateZ(52px) rotateY(-12deg) scale(1.05);
+  border-color:rgba(var(--accent-rgb),.6);
+}
+.partner-logo img{width:100%;height:100%;object-fit:contain;padding:7px;}
+.partner-body{flex:1;min-width:0;transform:translateZ(14px);}
+.partner-name{font-size:16.5px;font-weight:600;}
+.partner-role{font-size:13px;color:var(--text-dim);margin-top:3px;}
+.partner-site{
+  font-size:12px;
+  color:var(--text-dim);
+  opacity:.65;
+  margin-top:5px;
+  letter-spacing:.04em;
+  transition:color .25s ease, opacity .25s ease;
+}
+.partner-card:hover .partner-site{color:var(--accent);opacity:1;}
+.partner-card:hover .arrow{color:var(--accent);transform:translateZ(40px) translate(3px,-3px);}
 
 /* ---------- 3D tech ring ---------- */
 .ring-stage{
@@ -1845,6 +1890,37 @@ body.perf-low .quiz-answer{transition-duration:.2s;}
     </div>
   </div>
 
+  <div class="section" id="partners" data-depth data-slide="partners">
+    <div class="section-head">
+      <div class="section-label"><span class="dash"></span> <span data-i18n="label.partners">PARTNERS</span></div>
+      <h2 data-i18n="partners.h2">People I work with.</h2>
+      <p data-i18n="partners.p">The creators and communities the servers and sites are built alongside.</p>
+    </div>
+    <div class="partner-grid" data-stagger>
+
+      <a class="card partner-card" data-tilt href="https://imperius.hu/" target="_blank" rel="noopener">
+        <div class="partner-logo"><img src="assets/thumb-imperius.aeadc37c.webp" alt="Imperius" width="64" height="64" loading="lazy" decoding="async"></div>
+        <div class="partner-body">
+          <div class="partner-name">Imperius</div>
+          <div class="partner-role" data-i18n="partners.imperius.role">Content creator &amp; community</div>
+          <div class="partner-site">imperius.hu</div>
+        </div>
+        <div class="arrow">&#8599;</div>
+      </a>
+
+      <a class="card partner-card" data-tilt href="https://overclockgame.hu/" target="_blank" rel="noopener">
+        <div class="partner-logo"><img src="assets/thumb-overclock.641ac115.webp" alt="Kounee" width="64" height="64" loading="lazy" decoding="async"></div>
+        <div class="partner-body">
+          <div class="partner-name">Kounee</div>
+          <div class="partner-role" data-i18n="partners.kounee.role">Overclock &mdash; server team</div>
+          <div class="partner-site">overclockgame.hu</div>
+        </div>
+        <div class="arrow">&#8599;</div>
+      </a>
+
+    </div>
+  </div>
+
   <div class="section" id="stack" data-depth data-slide="stack">
     <div class="section-head">
       <div class="section-label"><span class="dash"></span> <span data-i18n="label.stack">TECH STACK</span></div>
@@ -1952,7 +2028,7 @@ body.perf-low .quiz-answer{transition-duration:.2s;}
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5.8 5.4 12.4 6.8 13.8 11 9.6V19h2V9.6l4.2 4.2 1.4-1.4L12 5.8Z"/></svg>
 </button>
 
-<script id="app-bundle" src="assets/app.169d71eb.js" defer></script>
+<script id="app-bundle" src="assets/app.d733848c.js" defer></script>
 <script>(function(){var shown=false;function warn(orphan){if(shown||document.body.classList.contains("js-on"))return;shown=true;var d=document.createElement("div");d.className="boot-warn";d.innerHTML=orphan?("<b>assets\/ not found<\/b><span>This copy of index.html is not next to its <code>assets\/<\/code> folder, so the styles you see are all it can load. Open index.html from the project folder, or visit <a href='https:\/\/kisskorboy.hu\/'>kisskorboy.hu<\/a>.<\/span><span lang=\"hu\">Ez az index.html nincs az <code>assets\/<\/code> mappája mellett. Nyisd meg a projektmappából, vagy nézd meg a <a href='https:\/\/kisskorboy.hu\/'>kisskorboy.hu<\/a> oldalt.<\/span>"):("<b>page did not finish loading<\/b><span>The page loaded but its script did not start. A reload usually fixes it.<\/span><span lang=\"hu\">Az oldal betöltött, de a szkriptje nem indult el. Általában elég újratölteni.<\/span>");document.body.appendChild(d);}function orphaned(){var i=document.images[0];return !!i&&i.complete&&i.naturalWidth===0;}var s=document.getElementById("app-bundle");if(s)s.addEventListener("error",function(){warn(true);});setTimeout(function(){warn(orphaned());},6000);})();</script>
 </body>
 </html>

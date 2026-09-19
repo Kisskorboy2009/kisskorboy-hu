@@ -40,7 +40,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-#top,#skills,#projects,#what-i-do,#stack,#quiz,#contact{scroll-margin-top:110px;}
+#top,#skills,#projects,#what-i-do,#partners,#stack,#quiz,#contact{scroll-margin-top:110px;}
 body{
   background:var(--bg);
   color:var(--text);
@@ -794,6 +794,51 @@ body.js-on [data-stagger] > *:nth-child(6){transition-delay:.45s;}
 .do-card .ico svg{width:19px;height:19px;}
 .do-card h3{font-size:15.5px;font-weight:600;margin-bottom:8px;transform:translateZ(16px);}
 .do-card p{font-size:13.5px;color:var(--text-dim);line-height:1.55;transform:translateZ(8px);}
+
+/* ---------- Partners ---------- */
+.partner-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(258px, 1fr));
+  gap:18px;
+  transform-style:preserve-3d;
+}
+.partner-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:20px;
+  text-decoration:none;
+  color:inherit;
+}
+.partner-card:hover{transform:translateZ(34px) translateY(-3px);}
+.partner-logo{
+  width:56px;height:56px;
+  flex:none;
+  border-radius:14px;
+  overflow:hidden;
+  background:var(--bg-soft);
+  border:1px solid var(--panel-border);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .45s cubic-bezier(.16,1,.3,1), border-color .3s ease;
+}
+.partner-card:hover .partner-logo{
+  transform:translateZ(52px) rotateY(-12deg) scale(1.05);
+  border-color:rgba(var(--accent-rgb),.6);
+}
+.partner-logo img{width:100%;height:100%;object-fit:contain;padding:7px;}
+.partner-body{flex:1;min-width:0;transform:translateZ(14px);}
+.partner-name{font-size:16.5px;font-weight:600;}
+.partner-role{font-size:13px;color:var(--text-dim);margin-top:3px;}
+.partner-site{
+  font-size:12px;
+  color:var(--text-dim);
+  opacity:.65;
+  margin-top:5px;
+  letter-spacing:.04em;
+  transition:color .25s ease, opacity .25s ease;
+}
+.partner-card:hover .partner-site{color:var(--accent);opacity:1;}
+.partner-card:hover .arrow{color:var(--accent);transform:translateZ(40px) translate(3px,-3px);}
 
 /* ---------- 3D tech ring ---------- */
 .ring-stage{

@@ -70,13 +70,15 @@ html = html.replace(/__SEGS_(\d+)__/g, (_, n) => {
   return out;
 });
 
+/* global, because a thumbnail is used both as a project card and as a
+   partner logo */
 html = html
   .replace('__DISCORD_SVG__', discord)
-  .replace('__AVATAR__', avatarUrl)
-  .replace('__THUMB_OVERCLOCK__', thumbs.OVERCLOCK)
-  .replace('__THUMB_IMPERIUS__', thumbs.IMPERIUS)
-  .replace('__THUMB_FYRE__', thumbs.FYRE)
-  .replace('__THUMB_NEPTUNITY__', thumbs.NEPTUNITY);
+  .replace(/__AVATAR__/g, avatarUrl)
+  .replace(/__THUMB_OVERCLOCK__/g, thumbs.OVERCLOCK)
+  .replace(/__THUMB_IMPERIUS__/g, thumbs.IMPERIUS)
+  .replace(/__THUMB_FYRE__/g, thumbs.FYRE)
+  .replace(/__THUMB_NEPTUNITY__/g, thumbs.NEPTUNITY);
 
 js = js
   .replace('__SKIN_URL__', skinUrl)
