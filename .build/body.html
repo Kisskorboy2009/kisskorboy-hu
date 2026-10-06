@@ -1,15 +1,14 @@
 <body data-lang="en">
 
 <div class="intro" id="intro">
-  <div class="intro-cube"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="intro-word">KISSKORBOY</div>
+  <div class="intro-word">kisskorboy<b>.</b></div>
+  <div class="intro-bar"><i></i></div>
 </div>
 
-<canvas id="bgCanvas"></canvas>
-<div class="aurora"></div>
-<div class="floor"><i><b></b></i></div>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="bg-grid" aria-hidden="true"></div>
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
 <div class="cursor-glow" id="cursorGlow"></div>
-<div class="grain" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
 
 <div class="progress"><i id="progressBar"></i></div>
@@ -19,6 +18,8 @@
 
 <div class="topbar">
   <div class="pill" id="navPill">
+    <a class="pill-brand" href="#top" aria-label="Kisskorboy"><img src="__AVATAR__" alt="" width="28" height="28" decoding="async"><span>kisskorboy</span></a>
+    <span class="pill-divider nav-div"></span>
     <nav class="pill-nav">
       <a href="#skills" data-i18n="nav.skills">Skills</a>
       <a href="#projects" data-i18n="nav.projects">Projects</a>
@@ -26,7 +27,7 @@
       <a href="#quiz" data-i18n="nav.quiz">Tree of Knowledge</a>
       <a href="#contact" data-i18n="nav.contact">Contact</a>
     </nav>
-    <span class="pill-divider"></span>
+    <span class="pill-divider nav-div"></span>
     <div class="lang" id="langSwitch" role="group" aria-label="Language">
       <button type="button" data-lang-set="en" class="on" aria-label="English">
         <svg viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -141,6 +142,48 @@
 
     <div id="projects" data-depth data-slide="projects">
       <div class="section-label"><span class="dash"></span> <span data-i18n="label.projects">PROJECTS</span></div>
+
+      <div class="card proj-main" data-tilt>
+        <div class="pm-flag"><i></i><span data-i18n="proj.main">Main project</span></div>
+        <div class="pm-head">
+          <div class="pm-logo"><img src="__THUMB_SOLARYN__" alt="Solaryn" width="92" height="92" decoding="async"></div>
+          <div class="pm-id">
+            <div class="proj-title-row">
+              <div class="pm-title">Solaryn</div>
+              <span class="status-badge pm-badge" data-i18n="badge.owner">Owner</span>
+            </div>
+            <div class="proj-sub" data-i18n="proj.sol.sub">Minecraft network · custom game modes, client &amp; anticheat</div>
+          </div>
+        </div>
+
+        <div class="pm-count" id="solarynCount" data-open="2026-10-23T00:00:00+02:00">
+          <div class="pm-count-label" data-i18n="proj.sol.until">Opening in</div>
+          <div class="pm-units" role="timer" aria-live="off">
+            <div class="pm-unit"><b data-u="d">00</b><span data-i18n="cd.d">days</span></div>
+            <div class="pm-unit"><b data-u="h">00</b><span data-i18n="cd.h">hours</span></div>
+            <div class="pm-unit"><b data-u="m">00</b><span data-i18n="cd.m">min</span></div>
+            <div class="pm-unit"><b data-u="s">00</b><span data-i18n="cd.s">sec</span></div>
+          </div>
+          <div class="pm-open" data-i18n="proj.sol.open">Solaryn is open — come play!</div>
+          <div class="pm-date" data-i18n="proj.sol.date">Launch: 23 October 2026</div>
+        </div>
+
+        <div class="pm-actions">
+          <a class="pm-btn pm-btn-main" href="https://youtu.be/XLeXTqWcQGE" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+            <span data-i18n="proj.sol.trailer">Watch the trailer</span>
+          </a>
+          <a class="pm-btn" href="https://www.solaryn.hu/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 6h-2.9a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8ZM12 4c.8 1.2 1.5 2.5 1.9 4h-3.8c.4-1.5 1.1-2.8 1.9-4ZM4.3 14a8.2 8.2 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4H4.3Zm.8 2h2.9c.3 1.3.8 2.5 1.4 3.6A8 8 0 0 1 5.1 16ZM8 8H5.1a8 8 0 0 1 4.3-3.6C8.8 5.5 8.3 6.7 8 8Zm4 12c-.8-1.2-1.5-2.5-1.9-4h3.8c-.4 1.5-1.1 2.8-1.9 4Zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4Zm.3 5.6c.6-1.1 1.1-2.3 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6Zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8.2 8.2 0 0 1 0 4h-3.4Z"/></svg>
+            <span data-i18n="proj.sol.site">Website</span>
+          </a>
+          <a class="pm-btn pm-btn-dc" href="https://dc.solaryn.hu" target="_blank" rel="noopener">
+            __DISCORD_SVG__
+            <span data-i18n="proj.sol.discord">Join our Discord</span>
+          </a>
+        </div>
+      </div>
+
       <div class="proj-list" data-stagger>
 
         <a class="card proj-card" data-tilt href="https://overclockgame.hu" target="_blank" rel="noopener">
@@ -151,6 +194,18 @@
               <span class="status-badge active" data-i18n="badge.owner">Owner</span>
             </div>
             <div class="proj-sub">overclockgame.hu</div>
+          </div>
+          <div class="arrow">&#8599;</div>
+        </a>
+
+        <a class="card proj-card" data-tilt href="https://asthetic.hu" target="_blank" rel="noopener">
+          <div class="proj-thumb"><img class="mono" src="__THUMB_ASTHETIC__" alt="Asthetic Game" width="64" height="64" loading="lazy" decoding="async"></div>
+          <div class="proj-body">
+            <div class="proj-title-row">
+              <div class="proj-title">Asthetic Game</div>
+              <span class="status-badge dev" data-i18n="badge.dev">Developer</span>
+            </div>
+            <div class="proj-sub" data-i18n="proj.asth.sub">Music card game &middot; asthetic.hu</div>
           </div>
           <div class="arrow">&#8599;</div>
         </a>
@@ -302,7 +357,7 @@
 
         <!-- start screen -->
         <div class="card quiz-card quiz-intro" id="quizIntro">
-          <div class="quiz-intro-mark"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="quiz-intro-cube" aria-hidden="true"><div class="quiz-intro-mark"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
           <h3 data-i18n="quiz.ready">Ready to climb?</h3>
           <p data-i18n="quiz.readyp">Fifteen questions stand between you and the top of the tree. Minecraft, code and general knowledge — mixed, shuffled and timed.</p>
           <button type="button" class="btn btn-primary quiz-start" id="quizStart" data-i18n="quiz.start">Start climbing</button>
@@ -361,11 +416,15 @@
       <h2 data-i18n="contact.h2">Let's talk.</h2>
       <p data-i18n="contact.p">Got a server project, a website idea, or need staff help? Hit me up on Discord.</p>
       <button class="copy-btn" id="copyDiscord">
+        <span class="dc" aria-hidden="true">__DISCORD_SVG__</span>
         <span id="copyLabel">@kisskorboy</span>
         <span class="hint" id="copyHint" data-i18n="copy.hint">Click to copy</span>
       </button>
     </div>
-    <footer>&copy; 2026 &middot; kisskorboy.hu</footer>
+    <footer>
+      <span class="foot-brand"><i></i>kisskorboy.hu</span>
+      <span>&copy; 2026 Kisskorboy</span>
+    </footer>
   </div>
 
 </div>

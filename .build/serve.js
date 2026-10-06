@@ -1,6 +1,4 @@
-/* Tiny static server for local preview. Also accepts POSTs from
-   tools/optimize-images.html, which re-encodes the source artwork
-   down to the sizes the page actually renders it at. */
+
 const http = require('http'), fs = require('fs'), path = require('path');
 const root = process.cwd();
 const types = {

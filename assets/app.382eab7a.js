@@ -6,14 +6,7 @@ var root = document.documentElement;
 var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var finePointer = window.matchMedia('(pointer:fine)').matches;
 
-/* ============================================================
-   0. Effect budget
-
-   Everything decorative on this page is opt-in per tier. A weak
-   machine starts with the cheap tier from its own hardware hints,
-   and any machine that then fails to hold a frame rate gets demoted
-   while it is running — so the page degrades instead of stuttering.
-   ============================================================ */
+// ---- effect budget ----
 var perf = (function(){
   var cores = navigator.hardwareConcurrency || 4;
   var mem = navigator.deviceMemory || 4;
@@ -21,19 +14,14 @@ var perf = (function(){
   var weak = reduced || cores <= 4 || mem <= 4 || (small && cores <= 6);
   return {
     low: weak,
-    // capped separately: a retina phone paints 4x the pixels for the
-    // same canvas, and the starfield is the most fill-heavy thing here
+
     dpr: weak ? 1 : Math.min(window.devicePixelRatio || 1, 1.75),
-    cubes: weak ? (small ? 8 : 14) : (small ? 14 : 24),
-    dust: weak ? (small ? 24 : 40) : (small ? 50 : 100),
+    motes: weak ? (small ? 14 : 22) : (small ? 24 : 42),
     tilt: !weak && !reduced && finePointer
   };
 })();
 if (perf.low) body.classList.add('perf-low');
 
-/* Demote once if the page cannot keep up. Sampled over real frames
-   rather than a timer, and only for the first few seconds, so a
-   background tab or a one-off hitch never triggers it. */
 var perfDemote = null;
 (function(){
   if (perf.low) return;
@@ -43,8 +31,8 @@ var perfDemote = null;
     if (!t0){ t0 = now; return; }
     var dt = now - t0;
     t0 = now;
-    if (dt > 34) slow++;            // slower than ~30fps
-    if (++frames < 150) return;     // ~2.5s of frames
+    if (dt > 34) slow++;
+    if (++frames < 150) return;
     done = true;
     perfDemote = null;
     if (slow / frames > 0.3){
@@ -52,7 +40,7 @@ var perfDemote = null;
       perf.tilt = false;
       body.classList.add('perf-low');
       if (typeof trimBackground === 'function') trimBackground();
-      // drop the per-frame tilt work and let any lifted card settle back
+
       updateHoverTilt = null;
       var lifted = document.querySelectorAll('[data-tilt], .btn, .copy-btn');
       for (var i = 0; i < lifted.length; i++) lifted[i].style.transform = '';
@@ -60,9 +48,7 @@ var perfDemote = null;
   };
 })();
 
-/* ============================================================
-   1. i18n  (default: English)
-   ============================================================ */
+// ---- i18n ----
 var I18N = {
   en: {
     'meta.title':'Kisskorboy | Minecraft & Website Developer',
@@ -79,7 +65,17 @@ var I18N = {
     'skin.hint':'Drag to rotate · Scroll to zoom',
     'skin.sub':'My in-game skin — worn across every server I staff or own.',
     'label.projects':'PROJECTS',
-    'badge.owner':'Owner','badge.former':'Former Staff',
+    'badge.owner':'Owner','badge.former':'Former Staff','badge.dev':'Developer',
+    'proj.main':'Main project',
+    'proj.sol.sub':'Minecraft network · custom game modes, client & anticheat',
+    'proj.sol.until':'Opening in',
+    'proj.sol.open':'Solaryn is open — come play!',
+    'proj.sol.date':'Launch: 23 October 2026',
+    'proj.sol.trailer':'Watch the trailer',
+    'proj.sol.site':'Website',
+    'proj.sol.discord':'Join our Discord',
+    'cd.d':'days','cd.h':'hours','cd.m':'min','cd.s':'sec',
+    'proj.asth.sub':'Music card game · asthetic.hu',
     'proj.fyre.title':'FyreMC Team / Configurator',
     'proj.fyre.sub':'Staff membership & plugin configuration',
     'proj.nept.title':'Neptunity Admin',
@@ -150,7 +146,17 @@ var I18N = {
     'skin.hint':'Húzd a forgatáshoz · Görgess a nagyításhoz',
     'skin.sub':'A saját skinem — ezt hordom minden szerveren, ahol staff vagyok vagy tulajdonos.',
     'label.projects':'PROJEKTEK',
-    'badge.owner':'Tulajdonos','badge.former':'Korábbi Staff',
+    'badge.owner':'Tulajdonos','badge.former':'Korábbi Staff','badge.dev':'Fejlesztő',
+    'proj.main':'Fő projekt',
+    'proj.sol.sub':'Minecraft hálózat · saját játékmódok, kliens és anticheat',
+    'proj.sol.until':'Nyitásig hátralévő idő',
+    'proj.sol.open':'A Solaryn megnyílt — gyere játszani!',
+    'proj.sol.date':'Nyitás: 2026. október 23.',
+    'proj.sol.trailer':'Nézd meg a trailert',
+    'proj.sol.site':'Weboldal',
+    'proj.sol.discord':'Csatlakozz a Discordunkhoz',
+    'cd.d':'nap','cd.h':'óra','cd.m':'perc','cd.s':'mp',
+    'proj.asth.sub':'Zenei kártyajáték · asthetic.hu',
     'proj.fyre.title':'FyreMC Team / Konfigurátor',
     'proj.fyre.sub':'Staff tagság és plugin konfiguráció',
     'proj.nept.title':'Neptunity Admin',
@@ -211,8 +217,6 @@ var I18N = {
 var lang = 'en';
 try { var saved = localStorage.getItem('kk-lang'); if (saved === 'hu' || saved === 'en') lang = saved; } catch (e) {}
 
-// the quiz renders its own text from the bank, so it needs a callback
-// rather than the [data-i18n] sweep — set once the minigame boots
 var quizRelang = null;
 
 function t(key){
@@ -252,11 +256,8 @@ langSwitch.addEventListener('click', function(e){
   applyLang(btn.getAttribute('data-lang-set'));
 });
 
-/* ============================================================
-   2. Theme
-   ============================================================ */
-/* The attribute itself is set by the inline bootstrap in <head>, before
-   first paint — this only handles the toggle from here on. */
+// ---- theme ----
+
 var onThemeChange = null;
 
 document.getElementById('themeToggle').addEventListener('click', function(){
@@ -266,9 +267,7 @@ document.getElementById('themeToggle').addEventListener('click', function(){
   if (onThemeChange) onThemeChange();
 });
 
-/* ============================================================
-   3. Rotating role (3D flip): Minecraft Dev <-> Website Dev
-   ============================================================ */
+// ---- rotating role ----
 (function(){
   if (reduced) return;
   var inner = document.getElementById('rolesInner');
@@ -279,11 +278,7 @@ document.getElementById('themeToggle').addEventListener('click', function(){
   }, 3400);
 })();
 
-/* ============================================================
-   4. 3D tech ring — hand-driven: grab and spin it, it keeps the
-      momentum, eases back to a slow idle drift, and slows right
-      down while the pointer is over it so chips are easy to hit.
-   ============================================================ */
+// ---- 3d tech ring ----
 var spinRings = null;
 (function(){
   var items = ['Paper API','Spigot','Velocity','MySQL','MariaDB','SQLite','Redis','Java 17','Java 21','JDA','Discord.js','HTML / CSS / JS','Git'];
@@ -291,7 +286,7 @@ var spinRings = null;
   var radius = window.innerWidth < 760 ? 250 : 380;
   var half = Math.ceil(items.length / 2);
   var DEG = Math.PI / 180;
-  var IDLE = reduced ? 0 : 0.075;   // degrees per frame when nobody is touching it
+  var IDLE = reduced ? 0 : 0.075;
   var rows = [];
 
   function build(el, list, dir, tilt){
@@ -334,7 +329,7 @@ var spinRings = null;
     if (!dragging) return;
     dragging = false;
     stage.classList.remove('dragging');
-    // hand the throw over to the idle spin, clamped so it never whips
+
     vel = Math.max(-6, Math.min(6, dragVel));
   }
   stage.addEventListener('pointerup', endDrag);
@@ -343,7 +338,7 @@ var spinRings = null;
   spinRings = function(){
     if (!dragging){
       var target = hovering ? IDLE * 0.15 : IDLE;
-      // fast throws decay quickly, then settle onto the idle drift
+
       vel += (target - vel) * (Math.abs(vel) > IDLE * 2 ? 0.04 : 0.08);
       angle += vel;
     }
@@ -354,9 +349,9 @@ var spinRings = null;
       var a = angle * row.dir;
       row.el.style.transform = 'rotateX(' + row.tilt + 'deg) rotateY(' + a.toFixed(2) + 'deg)';
 
-      var best = -1, bestFacing = 0.72;   // only one chip per row is ever "front"
+      var best = -1, bestFacing = 0.72;
       for (var i = 0; i < row.chips.length; i++){
-        var facing = Math.cos((a + row.base[i]) * DEG);   // 1 = straight at the camera
+        var facing = Math.cos((a + row.base[i]) * DEG);
         var chip = row.chips[i];
         var o = (facing + 0.25) / 1.25;
         if (o < 0) o = 0; else if (o > 1) o = 1;
@@ -375,9 +370,7 @@ var spinRings = null;
   };
 })();
 
-/* ============================================================
-   5. Slide dots
-   ============================================================ */
+// ---- slide dots ----
 var slides = [].slice.call(document.querySelectorAll('[data-slide]'));
 var dotsWrap = document.getElementById('slideDots');
 (function(){
@@ -398,9 +391,7 @@ var dotsWrap = document.getElementById('slideDots');
 })();
 var dotButtons = [].slice.call(dotsWrap.querySelectorAll('button'));
 
-/* ============================================================
-   6. Scroll engine: depth transforms, progress, active dot
-   ============================================================ */
+// ---- scroll engine ----
 var scene = document.querySelector('.scene');
 var depthEls = [].slice.call(document.querySelectorAll('[data-depth]'));
 var progressBar = document.getElementById('progressBar');
@@ -413,10 +404,8 @@ var staggerEls = [].slice.call(document.querySelectorAll('[data-stagger]'));
 var staggerTops = [];
 var slideNum = document.getElementById('slideNum');
 var activeSlide = -1;
+var navLinks = [].slice.call(document.querySelectorAll('.pill-nav a'));
 
-// Layout offset, unaffected by the 3D transforms we apply — using
-// getBoundingClientRect() here would feed each element's own transform
-// back into its progress value.
 function layoutTop(el){
   var y = 0;
   while (el){ y += el.offsetTop; el = el.offsetParent; }
@@ -450,8 +439,6 @@ function updateScroll(){
 
   var vh = window.innerHeight;
 
-  // keep the vanishing point at the centre of the viewport, so translateZ
-  // reads as depth instead of sliding elements toward a fixed page point
   scene.style.perspectiveOrigin = '50% ' + Math.round(y + vh * 0.5) + 'px';
 
   if (!reduced){
@@ -463,7 +450,6 @@ function updateScroll(){
     }
   }
 
-  // card groups fade in one after another once their block is on screen
   for (var s = 0; s < staggerEls.length; s++){
     if (!staggerEls[s].classList.contains('in') && staggerTops[s] - y < vh * 0.88){
       staggerEls[s].classList.add('in');
@@ -483,12 +469,13 @@ function updateScroll(){
       dotButtons[k].classList.toggle('on', k === active);
     }
     if (slideNum) slideNum.textContent = pad(active + 1);
+    var activeId = slides[active].getAttribute('data-slide');
+    for (var n = 0; n < navLinks.length; n++){
+      navLinks[n].classList.toggle('on', navLinks[n].getAttribute('href') === '#' + activeId);
+    }
   }
 }
 
-/* Own easing instead of scrollIntoView({behavior:'smooth'}) — the deck's
-   transforms change every frame, and the browser abandons a native smooth
-   scroll when the layout under it keeps moving. */
 var scrollToken = 0;
 function smoothScrollTo(targetY){
   var maxY = document.documentElement.scrollHeight - window.innerHeight;
@@ -516,13 +503,12 @@ function smoothScrollTo(targetY){
 window.addEventListener('wheel', function(){ scrollToken++; }, { passive: true });
 window.addEventListener('touchstart', function(){ scrollToken++; }, { passive: true });
 
-/* Jump between slides like a deck — Page Up/Down, Home, End */
 function goToSlide(i){
   if (i < 0) i = 0;
   if (i > slides.length - 1) i = slides.length - 1;
   smoothScrollTo(layoutTop(slides[i]) - 110);
 }
-// in-page links use the same animated jump, for the same reason
+
 document.addEventListener('click', function(e){
   var a = e.target.closest('a[href^="#"]');
   if (!a) return;
@@ -541,9 +527,7 @@ window.addEventListener('keydown', function(e){
   else if (k === 'End'){ e.preventDefault(); goToSlide(slides.length - 1); }
 });
 
-/* ============================================================
-   7. Pointer parallax: whole deck + nav pill + cursor glow
-   ============================================================ */
+// ---- pointer parallax ----
 var deck = document.getElementById('deck');
 var navPill = document.getElementById('navPill');
 var glow = document.getElementById('cursorGlow');
@@ -562,24 +546,18 @@ if (!reduced && finePointer){
 function updateParallax(){
   curX += (pointerX - curX) * 0.06;
   curY += (pointerY - curY) * 0.06;
-  var ry = (curX - 0.5) * 7;
-  var rx = (0.5 - curY) * 4.5;
+  var ry = (curX - 0.5) * 2.4;
+  var rx = (0.5 - curY) * 1.6;
   deck.style.transform = 'rotateY(' + ry.toFixed(2) + 'deg) rotateX(' + rx.toFixed(2) + 'deg)';
-  navPill.style.transform = 'rotateY(' + (ry * 0.9).toFixed(2) + 'deg) rotateX(' + (rx * 0.8).toFixed(2) + 'deg) translateZ(10px)';
+  navPill.style.transform = 'rotateY(' + (ry * 0.6).toFixed(2) + 'deg) rotateX(' + (rx * 0.6).toFixed(2) + 'deg)';
 
   glowX += (glowTX - glowX) * 0.14;
   glowY += (glowTY - glowY) * 0.14;
   glow.style.transform = 'translate3d(' + glowX.toFixed(1) + 'px,' + glowY.toFixed(1) + 'px,0)';
 }
 
-/* ============================================================
-   8. Per-card 3D tilt + sheen tracking
-   ============================================================ */
-/* One delegated pointer listener for the whole page instead of two per
-   element. The hovered element's box is measured once on enter and the
-   transform is written once per animation frame — a pointermove that
-   both measures and writes forces a synchronous layout on every single
-   move event, which is what used to make dense sections stutter. */
+// ---- card tilt ----
+
 var updateHoverTilt = null;
 (function(){
   if (!perf.tilt) return;
@@ -589,10 +567,10 @@ var updateHoverTilt = null;
   var btn = null, btnRect = null, btnLift = 0;
 
   function liftFor(el){
-    return el.classList.contains('proj-card') ? 34
-         : el.classList.contains('do-card') ? 40
+    return el.classList.contains('proj-card') ? 14
+         : el.classList.contains('do-card') ? 18
          : el.classList.contains('avatar-stage') ? 0
-         : 18;
+         : 8;
   }
 
   document.addEventListener('pointerover', function(e){
@@ -605,7 +583,7 @@ var updateHoverTilt = null;
     if (b && b !== btn){
       if (btn) btn.style.transform = '';
       btn = b; btnRect = b.getBoundingClientRect();
-      btnLift = b.classList.contains('copy-btn') ? 66 : 26;
+      btnLift = b.classList.contains('copy-btn') ? 50 : 16;
     }
     moved = true;
   }, { passive: true });
@@ -619,7 +597,6 @@ var updateHoverTilt = null;
     px = e.clientX; py = e.clientY; moved = true;
   }, { passive: true });
 
-  // the cached boxes move with the page, so they are stale after a scroll
   window.addEventListener('scroll', function(){
     if (card) cardRect = card.getBoundingClientRect();
     if (btn) btnRect = btn.getBoundingClientRect();
@@ -634,28 +611,22 @@ var updateHoverTilt = null;
       card.style.setProperty('--mx', (cx2 * 100).toFixed(1) + '%');
       card.style.setProperty('--my', (cy2 * 100).toFixed(1) + '%');
       card.style.transform = 'translateZ(' + cardLift + 'px) rotateY(' +
-        ((cx2 - 0.5) * 12).toFixed(2) + 'deg) rotateX(' + ((0.5 - cy2) * 10).toFixed(2) + 'deg)';
+        ((cx2 - 0.5) * 6).toFixed(2) + 'deg) rotateX(' + ((0.5 - cy2) * 5).toFixed(2) + 'deg)';
     }
     if (btn && btnRect.width){
       var dx = (px - (btnRect.left + btnRect.width / 2)) / btnRect.width;
       var dy = (py - (btnRect.top + btnRect.height / 2)) / btnRect.height;
       btn.style.transform =
-        'translateZ(' + btnLift + 'px) translate3d(' + (dx * 12).toFixed(1) + 'px,' +
-        (dy * 7 - 3).toFixed(1) + 'px,0) rotateY(' + (dx * 14).toFixed(1) +
-        'deg) rotateX(' + (-dy * 12).toFixed(1) + 'deg)';
+        'translateZ(' + btnLift + 'px) translate3d(' + (dx * 6).toFixed(1) + 'px,' +
+        (dy * 4 - 2).toFixed(1) + 'px,0) rotateY(' + (dx * 6).toFixed(1) +
+        'deg) rotateX(' + (-dy * 6).toFixed(1) + 'deg)';
     }
   };
 })();
 
-/* ============================================================
-   9. Skill bars + stat counters
-   ============================================================ */
-/* The meters used to fill on the load event, which on a desktop happens
-   while the visitor is still looking at the hero — by the time they
-   scrolled down the animation was long over. They run on arrival now,
-   and the score beside each meter counts in step with its blocks
-   instead of on a separate timer that drifted out of sync. */
-var ROW_MS = 90;    // must match the transition-delay in the stylesheet
+// ---- skill bars + stat counters ----
+
+var ROW_MS = 90;
 var SEG_MS = 42;
 
 (function(){
@@ -666,7 +637,7 @@ var SEG_MS = 42;
   var scores = [].slice.call(card.querySelectorAll('[data-score]'));
   tracks.forEach(function(tr, row){ tr.style.setProperty('--row', row); });
 
-  if (reduced) return;    // the build already wrote the meters filled
+  if (reduced) return;
 
   card.classList.add('js-bars');
   scores.forEach(function(el){ el.textContent = '0/10'; });
@@ -694,8 +665,6 @@ var SEG_MS = 42;
   io.observe(card);
 })();
 
-/* Hero counters. These sit above the fold, so the load event is the
-   right moment for them. */
 (function(){
   var fired = false;
   function run(){
@@ -721,9 +690,7 @@ var SEG_MS = 42;
   else window.addEventListener('load', function(){ setTimeout(run, 400); });
 })();
 
-/* ============================================================
-   10. Staff-time counters
-   ============================================================ */
+// ---- staff-time counters ----
 var fyreStart = new Date(2025, 7, 18, 13, 35, 0);
 var fyreEnd = new Date(2026, 6, 22, 0, 0, 0);
 var neptunityStart = new Date(2026, 4, 15, 15, 59, 0);
@@ -745,7 +712,29 @@ function formatStaffTime(start, end){
   return t('timer.label') + ' ' + days + t('timer.day') + ' ' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + suffix;
 }
 
+var solCount = document.getElementById('solarynCount');
+var solOpen = solCount ? Date.parse(solCount.getAttribute('data-open')) : 0;
+var solUnits = solCount ? solCount.querySelectorAll('[data-u]') : [];
+
+function updateCountdown(){
+  if (!solCount) return;
+  var left = Math.max(0, Math.floor((solOpen - Date.now()) / 1000));
+  var parts = {
+    d: Math.floor(left / 86400),
+    h: Math.floor(left % 86400 / 3600),
+    m: Math.floor(left % 3600 / 60),
+    s: left % 60
+  };
+  for (var i = 0; i < solUnits.length; i++){
+    var v = String(parts[solUnits[i].getAttribute('data-u')]);
+    if (v.length < 2) v = '0' + v;
+    if (solUnits[i].textContent !== v) solUnits[i].textContent = v;
+  }
+  solCount.classList.toggle('is-open', left === 0);
+}
+
 function updateTimers(){
+  updateCountdown();
   var a = document.getElementById('fyreTimer');
   var b = document.getElementById('neptunityTimer');
   if (a) a.textContent = formatStaffTime(fyreStart, fyreEnd);
@@ -753,9 +742,7 @@ function updateTimers(){
 }
 setInterval(updateTimers, 1000);
 
-/* ============================================================
-   11. Copy Discord tag
-   ============================================================ */
+// ---- copy discord tag ----
 var copyHint = document.getElementById('copyHint');
 document.getElementById('copyDiscord').addEventListener('click', function(){
   var done = function(){
@@ -769,40 +756,26 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   }
 });
 
-/* ============================================================
-   11a. Back-to-top button
-   ============================================================ */
+// ---- back-to-top button ----
 (function(){
   var btn = document.getElementById('toTop');
   if (!btn) return;
   btn.addEventListener('click', function(){ smoothScrollTo(0); });
-  // the scroll engine already runs every frame; piggyback on its listener
+
   window.addEventListener('scroll', function(){
     btn.classList.toggle('on', window.pageYOffset > window.innerHeight * 0.9);
   }, { passive: true });
 })();
 
-/* ============================================================
-   11b. Tree of Knowledge — quiz minigame
-
-   Fifteen levels in three difficulty tiers. A wrong answer or an
-   expired clock ends the run, unless the shield lifeline is armed.
-   Questions come from QUIZ_BANK, shuffled per run so a second
-   attempt is never the same climb.
-   ============================================================ */
+// ---- tree of knowledge ----
 (function(){
   var tree = document.querySelector('.quiz-tree');
   if (!tree) return;
 
-  /* The bank is a separate file so its weight never lands on first
-     paint. It is prefetched as the section approaches, so pressing
-     Start is instant in practice. */
   var QUIZ_URL = 'assets/quiz-data.87e964ee.js';
-  var bankState = 0;   // 0 idle, 1 loading, 2 ready, 3 failed
+  var bankState = 0;
   var bankWaiting = [];
 
-  // cb is optional: the prefetch that runs when the section approaches
-  // passes none, and by then the bank may already be loaded
   function withBank(cb){
     if (bankState === 2){ if (cb) cb(true); return; }
     if (bankState === 3){ if (cb) cb(false); return; }
@@ -834,7 +807,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   }
 
   var MAX_LEVEL = 15;
-  // upper bound of each tier, and how many seconds that tier allows
+
   var TIERS = [
     { key: 'easy',   top: 5,  secs: 22 },
     { key: 'medium', top: 10, secs: 18 },
@@ -862,15 +835,15 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   var overTruth = document.getElementById('quizTruth');
   var overBest  = document.getElementById('quizNewBest');
 
-  var level = 0;          // branches already cleared
+  var level = 0;
   var streak = 0;
   var best = 0;
   var playing = false;
-  var locked = false;     // true between answering and the next question
-  var current = null;     // { entry, opts, correct }
+  var locked = false;
+  var current = null;
   var used = { fifty: false, skip: false, shield: false };
   var shieldArmed = false;
-  var lastEnd = null;     // { kind, level, entry } — kept so re-language can redraw
+  var lastEnd = null;
   var deadline = 0, tickTimer = null;
 
   try { best = parseInt(localStorage.getItem('kk-quiz-best'), 10) || 0; } catch (e) {}
@@ -890,7 +863,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     return TIERS[TIERS.length - 1];
   }
 
-  /* ---- the tree ---- */
   var rungEls = [];
   (function buildTree(){
     var html = '';
@@ -918,7 +890,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     streakStat.classList.toggle('hot', streak >= 4);
   }
 
-  /* ---- clock ---- */
   function stopClock(){
     if (tickTimer){ clearInterval(tickTimer); tickTimer = null; }
   }
@@ -927,7 +898,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     deadline = Date.now() + secs * 1000;
     elBar.style.transition = 'none';
     elBar.style.transform = 'scaleX(1)';
-    // force a reflow so the reset above is not folded into the animation below
+
     void elBar.offsetWidth;
     elBar.style.transition = 'transform ' + secs + 's linear';
     elBar.style.transform = 'scaleX(0)';
@@ -959,54 +930,130 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     flashTimer = setTimeout(function(){ elFlash.classList.remove('on'); }, 1400);
   }
 
-  /* ---- questions ----
-
-     Each tier is dealt from a shuffled deck that survives between runs
-     and across visits. A question only comes back once its whole tier
-     has been dealt, so a second attempt is a genuinely different set
-     rather than a fresh shuffle that happily repeats what you just
-     answered. */
-  var DECK_KEY = 'kk-quiz-deck';
+  // Questions are dealt from a per-tier deck saved in localStorage, so every
+  // question comes up once before any repeats. Cards are keyed by a hash of
+  // their text, so growing or editing the bank keeps everyone's progress.
+  // On top of that, a short memory of recent answers and categories keeps
+  // look-alike questions ("How many...? 4") from landing back to back.
+  var DECK_KEY = 'kk-quiz-deck2';
+  var RECENT_IDS = 300;
+  var RECENT_ANS = 40;
   var decks = null;
   var usedThisRun = {};
+  var lastCats = [];
+  var idCache = {};
+
+  function qid(entry){
+    var s = entry[0], h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36);
+  }
+  function answerKey(entry){
+    return String(entry[2][0]).toLowerCase();
+  }
+  function poolIndex(tierKey){
+    if (idCache[tierKey]) return idCache[tierKey];
+    var pool = window.QUIZ_BANK[tierKey], map = {};
+    for (var i = 0; i < pool.length; i++) map[qid(pool[i])] = i;
+    return (idCache[tierKey] = map);
+  }
 
   function loadDecks(){
-    try {
-      var raw = JSON.parse(localStorage.getItem(DECK_KEY));
-      if (raw && raw.sizes) return raw;
-    } catch (e) {}
-    return { sizes: {} };
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(DECK_KEY)); } catch (e) {}
+    if (!d || typeof d !== 'object') d = {};
+    if (!d.piles) d.piles = {};
+    if (!d.recent) d.recent = [];
+    if (!d.answers) d.answers = [];
+    try { localStorage.removeItem('kk-quiz-deck'); } catch (e) {}
+    return d;
   }
   function saveDecks(){
     try { localStorage.setItem(DECK_KEY, JSON.stringify(decks)); } catch (e) {}
   }
 
+  // A fresh pile: everything shuffled, but whatever was seen recently goes to
+  // the bottom so it can't reappear right after the pile runs out.
+  function freshPile(tierKey){
+    var index = poolIndex(tierKey), fresh = [], stale = [], recent = {};
+    for (var r = 0; r < decks.recent.length; r++) recent[decks.recent[r]] = r + 1;
+    for (var id in index){
+      if (!index.hasOwnProperty(id)) continue;
+      (recent[id] ? stale : fresh).push(id);
+    }
+    stale.sort(function(a, b){ return recent[b] - recent[a]; });
+    // pile is drawn from the end, so: newest-seen first, then shuffled fresh ones
+    return stale.concat(shuffle(fresh));
+  }
+
+  // Keep the saved pile in step with the bank: drop removed questions and
+  // shuffle newly added ones in.
+  function syncPile(tierKey){
+    var index = poolIndex(tierKey);
+    var pile = decks.piles[tierKey];
+    if (!pile || !pile.length) return (decks.piles[tierKey] = freshPile(tierKey));
+    var seenIds = {}, kept = [];
+    for (var i = 0; i < pile.length; i++){
+      if (index.hasOwnProperty(pile[i]) && !seenIds[pile[i]]){ kept.push(pile[i]); seenIds[pile[i]] = 1; }
+    }
+    var known = decks.known && decks.known[tierKey];
+    if (known !== window.QUIZ_BANK[tierKey].length){
+      var recent = {};
+      for (var r = 0; r < decks.recent.length; r++) recent[decks.recent[r]] = 1;
+      var drawn = decks.drawn && decks.drawn[tierKey] || {};
+      for (var id in index){
+        if (index.hasOwnProperty(id) && !seenIds[id] && !recent[id] && !drawn[id]){
+          kept.splice(Math.floor(Math.random() * (kept.length + 1)), 0, id);
+        }
+      }
+    }
+    return (decks.piles[tierKey] = kept.length ? kept : freshPile(tierKey));
+  }
+
   function draw(tierKey){
     var pool = window.QUIZ_BANK[tierKey];
+    var index = poolIndex(tierKey);
     if (!decks) decks = loadDecks();
+    if (!decks.known) decks.known = {};
+    if (!decks.drawn) decks.drawn = {};
+    if (!decks.drawn[tierKey]) decks.drawn[tierKey] = {};
 
-    // a stored deck holds indices, so it is only meaningful while the
-    // tier is the same size it was when the deck was dealt
-    if (decks.sizes[tierKey] !== pool.length){
-      decks.sizes[tierKey] = pool.length;
-      decks[tierKey] = [];
+    var pile = syncPile(tierKey);
+    decks.known[tierKey] = pool.length;
+
+    var answers = {};
+    for (var a = 0; a < decks.answers.length; a++) answers[decks.answers[a]] = 1;
+
+    // Look a little way down the pile for the best card: not used this run,
+    // no recently seen answer, and not a third question in a row from the
+    // same category. Fall back step by step if nothing fits.
+    var LOOK = Math.min(pile.length, 30);
+    var pick = -1, fallback = -1, last = -1;
+    for (var k = pile.length - 1; k >= pile.length - LOOK; k--){
+      var entry = pool[index[pile[k]]];
+      if (usedThisRun[pile[k]]) continue;
+      if (last < 0) last = k;
+      if (answers[answerKey(entry)]) continue;
+      if (fallback < 0) fallback = k;
+      if (lastCats.length >= 2 && lastCats[0] === entry[4] && lastCats[1] === entry[4]) continue;
+      pick = k; break;
     }
+    if (pick < 0) pick = fallback > -1 ? fallback : (last > -1 ? last : pile.length - 1);
 
-    var idx, guard = 0;
-    do {
-      if (!decks[tierKey] || !decks[tierKey].length){
-        var all = [];
-        for (var i = 0; i < pool.length; i++) all.push(i);
-        decks[tierKey] = shuffle(all);
-      }
-      idx = decks[tierKey].pop();
-      // only reachable if a deck runs out mid-run; never hand the same
-      // question out twice inside one climb
-    } while (usedThisRun[tierKey + ':' + idx] && ++guard < 40);
+    var id = pile.splice(pick, 1)[0];
+    var chosen = pool[index[id]];
+    if (!pile.length){ decks.piles[tierKey] = []; decks.drawn[tierKey] = {}; }
+    else decks.drawn[tierKey][id] = 1;
 
-    usedThisRun[tierKey + ':' + idx] = true;
+    usedThisRun[id] = true;
+    decks.recent.push(id);
+    if (decks.recent.length > RECENT_IDS) decks.recent.splice(0, decks.recent.length - RECENT_IDS);
+    decks.answers.push(answerKey(chosen));
+    if (decks.answers.length > RECENT_ANS) decks.answers.splice(0, decks.answers.length - RECENT_ANS);
+    lastCats.unshift(chosen[4]);
+    lastCats.length = Math.min(lastCats.length, 2);
     saveDecks();
-    return pool[idx];
+    return chosen;
   }
 
   function renderQuestion(){
@@ -1035,7 +1082,7 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   function nextQuestion(){
     var tier = tierFor(level + 1);
     var entry = draw(tier.key);
-    // source order always puts the right answer first; shuffle the view of it
+
     var order = shuffle([0, 1, 2, 3]);
     current = { entry: entry, opts: order, correct: order.indexOf(0), removed: null };
     locked = false;
@@ -1045,7 +1092,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     startClock(tier.secs);
   }
 
-  /* ---- answering ---- */
   function resolve(picked){
     if (locked) return;
     locked = true;
@@ -1089,7 +1135,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     resolve(parseInt(b.getAttribute('data-idx'), 10));
   });
 
-  /* ---- lifelines ---- */
   lifelines.addEventListener('click', function(e){
     var b = e.target.closest('.lifeline');
     if (!b || b.disabled || !playing || locked) return;
@@ -1109,11 +1154,10 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     } else if (kind === 'shield'){
       shieldArmed = true;
       b.classList.add('armed');
-      b.disabled = false;   // stays lit until it absorbs a hit
+      b.disabled = false;
     }
   });
 
-  /* ---- run lifecycle ---- */
   function startRun(){
     if (bankState !== 2){
       setBusy(true);
@@ -1214,8 +1258,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   startBtn.addEventListener('click', function(){ showError(''); startRun(); });
   retryBtn.addEventListener('click', startRun);
 
-  /* A line worth pasting into a Discord chat — the whole point of a
-     score you cannot otherwise prove. */
   shareBtn.addEventListener('click', function(){
     if (!lastEnd) return;
     var text = lastEnd.kind === 'win'
@@ -1236,7 +1278,6 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
     }
   });
 
-  /* number keys pick an answer, but only while the game is actually on screen */
   window.addEventListener('keydown', function(e){
     if (!playing || locked || e.ctrlKey || e.altKey || e.metaKey) return;
     var n = parseInt(e.key, 10);
@@ -1280,38 +1321,13 @@ document.getElementById('copyDiscord').addEventListener('click', function(){
   paintTree();
 })();
 
-/* ============================================================
-   12. 3D voxel starfield background
-   ============================================================ */
 var renderBackground = null;
 var trimBackground = null;
 (function(){
   var canvas = document.getElementById('bgCanvas');
-  // alpha is required (the canvas sits over the page background), but
-  // telling the browser we never read pixels back keeps it on the GPU
   var ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
-  var w = 0, h = 0, cx = 0, cy = 0, dpr = 1;
-  var FOCAL = 560;
-  var FAR = 1400;
-  var NEAR = 90;
-
-  var CUBE_COUNT = perf.cubes;
-  var DUST_COUNT = perf.dust;
-
-  // unit cube corners
-  var CORNERS = [
-    [-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
-    [-1,-1, 1],[1,-1, 1],[1,1, 1],[-1,1, 1]
-  ];
-  var FACES = [
-    { idx:[0,1,2,3], n:[0,0,-1] },
-    { idx:[5,4,7,6], n:[0,0,1] },
-    { idx:[4,0,3,7], n:[-1,0,0] },
-    { idx:[1,5,6,2], n:[1,0,0] },
-    { idx:[4,5,1,0], n:[0,-1,0] },
-    { idx:[3,2,6,7], n:[0,1,0] }
-  ];
-  var LIGHT = [-0.44, -0.66, -0.61];
+  var w = 0, h = 0, dpr = 1;
+  var small = window.innerWidth < 760;
 
   function resize(){
     dpr = perf.dpr;
@@ -1321,178 +1337,274 @@ var trimBackground = null;
     canvas.style.width = w + 'px';
     canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cx = w / 2; cy = h / 2;
   }
   var bgResizeTimer = null;
   window.addEventListener('resize', function(){
     clearTimeout(bgResizeTimer);
-    bgResizeTimer = setTimeout(resize, 120);
+    bgResizeTimer = setTimeout(function(){ resize(); layoutSnips(); }, 120);
   });
   resize();
 
   function rnd(a, b){ return a + Math.random() * (b - a); }
 
-  function makeCube(deep){
-    var spread = Math.max(w, h) * 0.85;
-    return {
-      x: rnd(-spread, spread),
-      y: rnd(-spread * 0.75, spread * 0.75),
-      z: deep ? rnd(NEAR, FAR) : FAR,
-      size: rnd(14, 46),
-      ax: rnd(0, Math.PI * 2), ay: rnd(0, Math.PI * 2),
-      vax: rnd(-0.004, 0.004), vay: rnd(-0.005, 0.005),
-      vz: rnd(0.5, 1.5),
-      accent: Math.random() < 0.34
-    };
-  }
-  function makeDust(deep){
-    var spread = Math.max(w, h) * 1.1;
-    return {
-      x: rnd(-spread, spread),
-      y: rnd(-spread * 0.8, spread * 0.8),
-      z: deep ? rnd(NEAR, FAR) : FAR,
-      vz: rnd(0.8, 2.4),
-      accent: Math.random() < 0.14
-    };
-  }
+  var SNIPPETS = [
+    ["function applyLang(next){", "  lang = next === 'hu' ? 'hu' : 'en';", "  document.title = t('meta.title');", "  if (quizRelang) quizRelang();", "}"],
+    [".card:hover{", "  border-color:var(--line-strong);", "  transform:translateY(-3px);", "}"],
+    ['<a class="card proj-card" href="https://asthetic.hu">', '  <div class="proj-title">Asthetic Game</div>', '</a>'],
+    ["var TIERS = [", "  { key: 'easy',   top: 5,  secs: 22 },", "  { key: 'medium', top: 10, secs: 18 },", "  { key: 'hard',   top: 15, secs: 14 }", "];"],
+    [":root{", "  --bg:#08090b;", "  --accent:#c81e2e;", "  --radius:20px;", "}"],
+    ["viewer = new skinview3d.SkinViewer({", "  width: 210,", "  height: 270,", "  skin: SKIN_URL", "});"],
+    ["if (picked === current.correct){", "  level++;", "  streak++;", "  paintTree();", "}"],
+    ["window.addEventListener('scroll', onScroll, {", "  passive: true", "});"],
+    ["@keyframes spin{", "  to{ transform:rotate(360deg); }", "}"],
+    ["navigator.clipboard.writeText('kisskorboy')", "  .then(done, done);"],
+    ['<h1 class="name3d">', '  <span class="lyr">KISSKORBOY</span>', '</h1>'],
+    ["function smoothScrollTo(targetY){", "  var dist = targetY - window.pageYOffset;", "  if (Math.abs(dist) < 2) return;", "}"],
+    [".btn-primary{", "  background:linear-gradient(135deg,", "    var(--accent-hi), var(--accent));", "}"],
+    ["var items = ['Paper API', 'Velocity',", "  'Redis', 'Java 21', 'Discord.js'];"]
+  ];
 
-  var cubes = [], dust = [];
-  for (var i = 0; i < CUBE_COUNT; i++) cubes.push(makeCube(true));
-  for (var d = 0; d < DUST_COUNT; d++) dust.push(makeDust(true));
-
-  var themeNeutral, themeAccent;
-  function readTheme(){
+  var TOKENS = /('[^']*'|"[^"]*")|(\b(?:var|function|return|if|new|const)\b)|(#[0-9a-fA-F]{3,8}\b|\b\d+(?:\.\d+)?(?:px|deg|s|ms)?\b)|(<\/?[a-z0-9]+|\/?>)|(--[a-z-]+|[a-z-]+(?=:))|([{}()\[\];,.:=+<>|!?])/g;
+  var pal;
+  function readPalette(){
     var light = root.getAttribute('data-theme') === 'light';
-    themeNeutral = light ? '90,86,80' : '235,238,240';
-    themeAccent  = light ? '179,24,42' : '200,30,46';
+    pal = light ? {
+      text: 'rgba(40,40,44,.9)', kw: '#b3182a', str: '#b8462f', num: '#a4553c', tag: '#b3182a',
+      prop: 'rgba(80,78,74,.95)', punct: 'rgba(120,117,111,.9)', ln: 'rgba(120,117,111,.45)',
+      fill: 'rgba(255,255,255,.35)', stroke: 'rgba(20,16,12,.08)', dot: 'rgba(20,16,12,.12)'
+    } : {
+      text: 'rgba(236,238,240,.92)', kw: '#ec3d4e', str: '#ff8a7a', num: '#f5a58c', tag: '#ec3d4e',
+      prop: 'rgba(170,176,185,.95)', punct: 'rgba(130,136,145,.9)', ln: 'rgba(130,136,145,.4)',
+      fill: 'rgba(18,20,24,.35)', stroke: 'rgba(255,255,255,.07)', dot: 'rgba(255,255,255,.14)'
+    };
   }
-  readTheme();
-  onThemeChange = readTheme;
-  function neutralRGB(){ return themeNeutral; }
-  function accentRGB(){ return themeAccent; }
 
-  var rc = new Float32Array(24);   // rotated corners (8 * xyz)
-  var pc = new Float32Array(16);   // projected corners (8 * xy)
-  var pz = new Float32Array(8);
+  var FONT = '"JetBrains Mono", ui-monospace, Consolas, monospace';
 
-  function drawCube(c, boost){
-    var sx = Math.sin(c.ax), cxr = Math.cos(c.ax);
-    var sy = Math.sin(c.ay), cyr = Math.cos(c.ay);
-    var half = c.size / 2;
-    var ok = true;
-
-    for (var i = 0; i < 8; i++){
-      var px = CORNERS[i][0] * half, py = CORNERS[i][1] * half, pzz = CORNERS[i][2] * half;
-      // rotate X
-      var y1 = py * cxr - pzz * sx;
-      var z1 = py * sx + pzz * cxr;
-      // rotate Y
-      var x2 = px * cyr + z1 * sy;
-      var z2 = -px * sy + z1 * cyr;
-
-      var wx = c.x + x2, wy = c.y + y1, wz = c.z + z2;
-      if (wz < 40){ ok = false; break; }
-      rc[i * 3] = wx; rc[i * 3 + 1] = wy; rc[i * 3 + 2] = wz;
-      var s = FOCAL / wz;
-      pc[i * 2] = cx + wx * s;
-      pc[i * 2 + 1] = cy + wy * s;
-      pz[i] = wz;
+  function drawLine(g, line, x, y){
+    var last = 0, m;
+    TOKENS.lastIndex = 0;
+    while ((m = TOKENS.exec(line))){
+      if (m.index > last){ g.fillStyle = pal.text; g.fillText(line.slice(last, m.index), x + g.measureText(line.slice(0, last)).width, y); }
+      g.fillStyle = m[1] ? pal.str : m[2] ? pal.kw : m[3] ? pal.num : m[4] ? pal.tag : m[5] ? pal.prop : pal.punct;
+      g.fillText(m[0], x + g.measureText(line.slice(0, m.index)).width, y);
+      last = m.index + m[0].length;
     }
-    if (!ok) return;
+    if (last < line.length){ g.fillStyle = pal.text; g.fillText(line.slice(last), x + g.measureText(line.slice(0, last)).width, y); }
+    return x + g.measureText(line).width;
+  }
 
-    var fade = 1;
-    if (c.z > FAR * 0.65) fade = 1 - (c.z - FAR * 0.65) / (FAR * 0.35);
-    if (c.z < 260) fade = Math.min(fade, (c.z - 40) / 220);
-    if (fade <= 0) return;
-    fade *= 0.55;
+  function buildSprite(lines, depth){
+    var size = 10.5 + depth * 4.5;
+    var lh = size * 1.65;
+    var padX = size * 1.3, padTop = size * 2.6, padBottom = size * 1.1;
+    var gutter = size * 2.4;
+    var probe = document.createElement('canvas').getContext('2d');
+    probe.font = '400 ' + size + 'px ' + FONT;
+    var textW = 0;
+    for (var i = 0; i < lines.length; i++) textW = Math.max(textW, probe.measureText(lines[i]).width);
+    var W = Math.ceil(padX * 2 + gutter + textW), H = Math.ceil(padTop + lines.length * lh + padBottom);
 
-    var base = c.accent ? accentRGB() : neutralRGB();
+    var c = document.createElement('canvas');
+    c.width = Math.ceil(W * dpr); c.height = Math.ceil(H * dpr);
+    var g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    if (depth < 0.35 && 'filter' in g) g.filter = 'blur(' + (1.2 - depth * 2).toFixed(2) + 'px)';
 
-    for (var f = 0; f < 6; f++){
-      var face = FACES[f];
-      // rotate the face normal
-      var nx0 = face.n[0], ny0 = face.n[1], nz0 = face.n[2];
-      var ny1 = ny0 * cxr - nz0 * sx;
-      var nz1 = ny0 * sx + nz0 * cxr;
-      var nx2 = nx0 * cyr + nz1 * sy;
-      var nz2 = -nx0 * sy + nz1 * cyr;
+    var r = size * 0.9;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(0.5, 0.5, W - 1, H - 1, r); else g.rect(0.5, 0.5, W - 1, H - 1);
+    g.fillStyle = pal.fill; g.fill();
+    g.strokeStyle = pal.stroke; g.lineWidth = 1; g.stroke();
+    for (var d = 0; d < 3; d++){
+      g.beginPath();
+      g.arc(padX + d * size * 0.9, size * 1.2, size * 0.24, 0, Math.PI * 2);
+      g.fillStyle = d === 0 ? pal.kw : pal.dot;
+      g.fill();
+    }
 
-      // face centroid in camera space
-      var a = face.idx[0], b = face.idx[1], cc = face.idx[2], dd = face.idx[3];
-      var ccx = (rc[a*3] + rc[b*3] + rc[cc*3] + rc[dd*3]) / 4;
-      var ccy = (rc[a*3+1] + rc[b*3+1] + rc[cc*3+1] + rc[dd*3+1]) / 4;
-      var ccz = (rc[a*3+2] + rc[b*3+2] + rc[cc*3+2] + rc[dd*3+2]) / 4;
+    g.font = '400 ' + size + 'px ' + FONT;
+    g.textBaseline = 'middle';
+    var endX = 0, endY = 0;
+    for (var j = 0; j < lines.length; j++){
+      var y = padTop + j * lh + lh / 2;
+      g.fillStyle = pal.ln;
+      g.textAlign = 'right';
+      g.fillText(String(j + 1), padX + gutter - size * 0.9, y);
+      g.textAlign = 'left';
+      endX = drawLine(g, lines[j], padX + gutter, y);
+      endY = y;
+    }
+    return { canvas: c, w: W, h: H, caretX: endX + size * 0.25, caretY: endY - size * 0.6, caretW: size * 0.55, caretH: size * 1.2 };
+  }
 
-      // visible if normal points back toward the camera (origin)
-      if (nx2 * ccx + ny1 * ccy + nz2 * ccz >= 0) continue;
+  var snips = [];
+  var codeReady = false;
+  var SNIP_COUNT = small ? 6 : (perf.low ? 8 : 12);
 
-      var lambert = nx2 * LIGHT[0] + ny1 * LIGHT[1] + nz2 * LIGHT[2];
-      if (lambert < 0) lambert = 0;
-      var shade = 0.22 + lambert * 0.78;
-
-      ctx.beginPath();
-      ctx.moveTo(pc[a*2], pc[a*2+1]);
-      ctx.lineTo(pc[b*2], pc[b*2+1]);
-      ctx.lineTo(pc[cc*2], pc[cc*2+1]);
-      ctx.lineTo(pc[dd*2], pc[dd*2+1]);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(' + base + ',' + (fade * shade * 0.32).toFixed(3) + ')';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(' + base + ',' + (fade * (0.35 + shade * 0.5)).toFixed(3) + ')';
-      ctx.lineWidth = boost > 1.6 ? 1.4 : 1;
-      ctx.stroke();
+  function layoutSnips(){
+    if (!snips.length) return;
+    var cols = small ? 2 : 4;
+    for (var i = 0; i < snips.length; i++){
+      var s = snips[i];
+      var col = i % cols;
+      var slot = w / cols;
+      s.x = col * slot + rnd(-0.15, 0.55) * slot - s.sprite.w * 0.25;
+      s.y = (i / snips.length) * (h + 400) - 200 + rnd(-60, 60);
     }
   }
+
+  function buildSnips(){
+    readPalette();
+    var order = shuffleCopy(SNIPPETS);
+    var old = snips;
+    snips = [];
+    for (var i = 0; i < SNIP_COUNT; i++){
+      var prev = old[i];
+      var depth = prev ? prev.depth : Math.pow(Math.random(), 1.3);
+      var lines = prev ? prev.lines : order[i % order.length];
+      snips.push({
+        lines: lines,
+        depth: depth,
+        sprite: buildSprite(lines, depth),
+        x: prev ? prev.x : 0,
+        y: prev ? prev.y : 0,
+        dir: prev ? prev.dir : (Math.random() < 0.5 ? -1 : 1),
+        speed: prev ? prev.speed : rnd(0.05, 0.14) * (0.6 + depth),
+        bob: prev ? prev.bob : rnd(10, 26),
+        period: prev ? prev.period : rnd(0.25, 0.5),
+        phase: prev ? prev.phase : rnd(0, Math.PI * 2)
+      });
+    }
+    if (!old.length) layoutSnips();
+    codeReady = true;
+  }
+  function shuffleCopy(list){
+    var a = list.slice();
+    for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t2 = a[i]; a[i] = a[j]; a[j] = t2; }
+    return a;
+  }
+
+  var fontLoad = (document.fonts && document.fonts.load) ? document.fonts.load('400 13px "JetBrains Mono"') : Promise.resolve();
+  fontLoad.then(buildSnips, buildSnips);
+
+  // light motes
+  var SPRITE = 128;
+  var moteSprites = {};
+  function makeMoteSprite(rgb, core){
+    var c = document.createElement('canvas');
+    c.width = c.height = SPRITE;
+    var g = c.getContext('2d');
+    var r = SPRITE / 2;
+    var grad = g.createRadialGradient(r, r, 0, r, r, r);
+    grad.addColorStop(0, 'rgba(' + rgb + ',' + core + ')');
+    grad.addColorStop(0.18, 'rgba(' + rgb + ',' + (core * 0.55).toFixed(3) + ')');
+    grad.addColorStop(0.5, 'rgba(' + rgb + ',' + (core * 0.14).toFixed(3) + ')');
+    grad.addColorStop(1, 'rgba(' + rgb + ',0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, SPRITE, SPRITE);
+    return c;
+  }
+  function readMoteTheme(){
+    var light = root.getAttribute('data-theme') === 'light';
+    moteSprites.accent  = makeMoteSprite(light ? '179,24,42' : '236,61,78', light ? 0.5 : 0.9);
+    moteSprites.neutral = makeMoteSprite(light ? '120,100,90' : '236,238,240', light ? 0.35 : 0.7);
+  }
+  readMoteTheme();
+  onThemeChange = function(){
+    readMoteTheme();
+    if (codeReady) buildSnips();
+  };
+
+  function makeMote(anywhere){
+    var depth = Math.random();
+    return {
+      x: rnd(0, w),
+      y: anywhere ? rnd(0, h) : h + rnd(20, 120),
+      depth: depth,
+      size: 5 + depth * depth * 40,
+      vy: 0.08 + depth * 0.3,
+      sway: rnd(0.2, 0.9),
+      phase: rnd(0, Math.PI * 2),
+      tw: rnd(0.4, 1.1),
+      accent: Math.random() < 0.55
+    };
+  }
+  var motes = [];
+  var MOTE_COUNT = Math.round(perf.motes * 0.6);
+  for (var i = 0; i < MOTE_COUNT; i++) motes.push(makeMote(true));
+
+  var tick = 0;
+  var lastScroll = window.pageYOffset;
+  var caretOn = 0, caretSwap = 0;
 
   renderBackground = function(){
     ctx.clearRect(0, 0, w, h);
+    tick += 0.016;
+    var boost = 1 + Math.min(Math.abs(scrollVelocity) * 0.06, 4);
+    var ox = curX - 0.5, oy = curY - 0.5;
+    var sy = window.pageYOffset;
+    var dScroll = sy - lastScroll;
+    lastScroll = sy;
 
-    var boost = 1 + Math.min(Math.abs(scrollVelocity) * 0.09, 5);
-    var nRGB = neutralRGB(), aRGB = accentRGB();
+    if (codeReady){
+      var light = root.getAttribute('data-theme') === 'light';
+      if (tick > caretSwap){ caretOn = Math.floor(Math.random() * snips.length); caretSwap = tick + rnd(4, 7); }
+      var span = h + 400;
+      for (var k = 0; k < snips.length; k++){
+        var s = snips[k];
+        var sp = s.sprite;
 
-    // dust first (far layer)
-    for (var i = 0; i < dust.length; i++){
-      var p = dust[i];
-      p.z -= p.vz * boost;
-      if (p.z < NEAR){ dust[i] = makeDust(false); continue; }
-      var s = FOCAL / p.z;
-      var x = cx + p.x * s, y = cy + p.y * s;
-      if (x < -40 || x > w + 40 || y < -40 || y > h + 40) continue;
-      var alpha = (1 - p.z / FAR) * 0.5;
-      var r = Math.max(0.4, s * 1.1);
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + (p.accent ? aRGB : nRGB) + ',' + alpha.toFixed(3) + ')';
-      ctx.fill();
+        s.y += s.dir * s.speed - dScroll * (0.05 + s.depth * 0.12);
+        if (s.y < -200 - sp.h) s.y += span + sp.h;
+        else if (s.y > h + 200) s.y -= span + sp.h;
+
+        var x = s.x - ox * 36 * s.depth;
+        var y = s.y + Math.sin(tick * s.period + s.phase) * s.bob - oy * 24 * s.depth;
+
+        var edge = 1;
+        if (y < 60) edge = Math.max(0, (y + sp.h) / (sp.h + 60));
+        else if (y + sp.h > h - 40) edge = Math.max(0, (h + 40 - y) / (sp.h + 80));
+        var a = (light ? 0.14 : 0.1) + s.depth * (light ? 0.16 : 0.12);
+        a *= Math.min(1, edge);
+        if (a <= 0.005) continue;
+
+        ctx.globalAlpha = a;
+        ctx.drawImage(sp.canvas, x, y, sp.w, sp.h);
+        if (k === caretOn && Math.sin(tick * 6) > 0){
+          ctx.globalAlpha = Math.min(1, a * 2.2);
+          ctx.fillStyle = light ? '#b3182a' : '#ec3d4e';
+          ctx.fillRect(x + sp.caretX, y + sp.caretY, sp.caretW, sp.caretH);
+        }
+      }
     }
 
-    // cubes, far to near
-    cubes.sort(function(m, n){ return n.z - m.z; });
-    for (var j = 0; j < cubes.length; j++){
-      var c = cubes[j];
-      c.z -= c.vz * boost;
-      c.ax += c.vax; c.ay += c.vay;
-      if (c.z < NEAR){ cubes[j] = makeCube(false); continue; }
-      drawCube(c, boost);
+    for (var i = 0; i < motes.length; i++){
+      var m = motes[i];
+      m.y -= m.vy * boost;
+      if (m.y < -80){ motes[i] = makeMote(false); continue; }
+      var mx = m.x + Math.sin(tick * m.sway + m.phase) * 14 * m.depth - ox * 40 * m.depth;
+      var my = m.y - oy * 30 * m.depth;
+      var twinkle = 0.55 + 0.45 * Math.sin(tick * m.tw + m.phase);
+      ctx.globalAlpha = (0.16 + (1 - m.depth) * 0.45) * twinkle;
+      var ms = m.size;
+      ctx.drawImage(m.accent ? moteSprites.accent : moteSprites.neutral, mx - ms, my - ms, ms * 2, ms * 2);
     }
+    ctx.globalAlpha = 1;
   };
 
-  // called if the runtime frame check decides this machine is struggling
   trimBackground = function(){
     dpr = 1;
     resize();
-    cubes.length = Math.min(cubes.length, 8);
-    dust.length = Math.min(dust.length, 24);
+    motes.length = Math.min(motes.length, 10);
+    SNIP_COUNT = Math.min(SNIP_COUNT, 6);
+    snips.length = Math.min(snips.length, SNIP_COUNT);
+    if (codeReady) buildSnips();
   };
 })();
 
-/* ============================================================
-   13. Minecraft skin viewer
-   ============================================================ */
-/* skinview3d bundles three.js — around half a megabyte for one card that
-   most visitors never scroll past. It is fetched only when the card gets
-   close, and its render loop is parked whenever the card is off screen
-   or the tab is in the background. */
+// ---- minecraft skin viewer ----
+
 (function(){
   var SKIN_URL = 'assets/skin.775ec2e7.png';
   var BUNDLE_URL = 'assets/skinview3d.d196e9c9.js';
@@ -1531,8 +1643,7 @@ var trimBackground = null;
   function applyRunState(){
     if (!viewer) return;
     var run = visible && !document.hidden;
-    // skinview3d exposes its loop through .animate / .renderPaused across
-    // versions; guard both so an upgrade cannot silently peg a core
+
     try {
       if ('renderPaused' in viewer) viewer.renderPaused = !run;
       else if (typeof viewer.setRenderPaused === 'function') viewer.setRenderPaused(!run);
@@ -1553,7 +1664,6 @@ var trimBackground = null;
 
   if (!('IntersectionObserver' in window)){ load(); visible = true; return; }
 
-  // a generous margin so the model is already there by the time it scrolls in
   new IntersectionObserver(function(entries){
     for (var i = 0; i < entries.length; i++){
       visible = entries[i].isIntersecting;
@@ -1565,23 +1675,19 @@ var trimBackground = null;
   document.addEventListener('visibilitychange', applyRunState);
 })();
 
-/* ============================================================
-   14. Intro curtain
-   ============================================================ */
+// ---- intro curtain ----
 (function(){
   var intro = document.getElementById('intro');
   var hide = function(){ intro.classList.add('done'); };
   if (reduced){ hide(); return; }
-  // never gate the page on the load event — the curtain is a flourish, not a loader
+
   setTimeout(hide, 900);
   ['pointerdown','keydown','wheel','touchstart'].forEach(function(ev){
     window.addEventListener(ev, hide, { once: true, passive: true });
   });
 })();
 
-/* ============================================================
-   15. Light source-protection deterrents (kept from before)
-   ============================================================ */
+// ---- devtools deterrents ----
 document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 document.addEventListener('keydown', function(e){
   var k = (e.key || '').toUpperCase();
@@ -1590,10 +1696,7 @@ document.addEventListener('keydown', function(e){
   if (e.ctrlKey && (k === 'U' || k === 'S')){ e.preventDefault(); return; }
 });
 
-/* ============================================================
-   Master frame loop — kept separate so a failure in any one
-   effect can never freeze the rest of the page.
-   ============================================================ */
+// ---- master frame loop ----
 var frameId = 0;
 function frame(now){
   frameId = requestAnimationFrame(frame);
@@ -1614,9 +1717,6 @@ function frame(now){
   }
 }
 
-/* A hidden tab still gets animation frames in some browsers, and the
-   starfield is the most expensive thing on the page — stop the loop
-   outright rather than paying for frames nobody sees. */
 document.addEventListener('visibilitychange', function(){
   if (document.hidden){
     if (frameId){ cancelAnimationFrame(frameId); frameId = 0; }
@@ -1626,9 +1726,7 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
-/* ============================================================
-   Boot
-   ============================================================ */
+// ---- boot ----
 body.classList.add('js-on');
 applyLang(lang);
 measure();
